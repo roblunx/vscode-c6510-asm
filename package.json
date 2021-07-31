@@ -1,0 +1,25 @@
+{
+    "name": "c6510-asm",
+    "displayName": "c6510-Assembler",
+    "description": "Language support for c6510 assembler (C64)",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.58.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "c6510",
+            "aliases": ["c6510-asm", "c6510"],
+            "extensions": [".s",".i",".asm"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "c6510",
+            "scopeName": "source.c6510",
+            "path": "./syntaxes/c6510.tmLanguage.json"
+        }]
+    }
+}
