@@ -1,20 +1,194 @@
 {
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "c6510-asm",
+	"fileTypes": [".s", ".i", ".asm"],
 	"patterns": [
 		{
-			"include": "#keywords"
+			"include": "#comment"
+		},
+		{
+			"include": "#control"
+		},
+		{
+			"include": "#6502"
+		},
+		{
+			"include": "#composed"
+		},
+		{
+			"include": "#support"
+		},
+		{
+			"include": "#misc"
+		},
+		{
+			"include": "#constants"
+		},
+		{
+			"include": "#operators"
 		},
 		{
 			"include": "#strings"
 		}
 	],
 	"repository": {
-		"keywords": {
+		"comment": {
+			"patterns": [
+				{
+					"name": "comment.block.c6510",
+					"begin": "/\\*",
+					"end": "\\*/",
+					"captures": {
+						"0": { "name": "punctuation.definition.comment.c6510" }
+					}
+				},
+				{
+					"name": "comment.line.double-slash.c6510",
+					"begin": "//",
+					"end": "$",
+					"beginCaptures": {
+						"0": { "name": "punctuation.definition.comment.c6510" }
+					}
+				},
+				{
+					"name": "comment.line.semicolon.c6510",
+					"begin": ";",
+					"end": "$",
+					"beginCaptures": {
+						"0": { "name": "punctuation.definition.comment.c6510" }
+					}
+				}
+			]
+		},
+		"control": {
 			"patterns": [{
 				"name": "keyword.control.c6510",
-				"match": "\\b(if|while|for|return)\\b"
+				"match": "\\b(if|else|elseif|endif|for|def)\\b"
 			}]
+		},
+		"6502": {
+			"patterns": [
+				{
+					"name": "keyword.other.opcode.6502.legal.c6510",
+					"match": "\\b(adc|and|asl|bcc|bcs|beq|bit|bmi|bne|bpl|brk|bvc|bvs|clc|cld|cli|clv|cmp|cpx|cpy|dec|dex|dey|eor|inc|inx|iny|jmp|jsr|lda|ldx|ldy|lsr|nop|ora|pha|php|pla|plp|rol|ror|rti|rts|sbc|sec|sed|sei|sta|stx|sty|tax|tay|tsx|txa|txs|tya)\\b"
+				},
+				{
+					"name": "keyword.other.opcode.6502.illegal.c6510",
+					"match": "\\b(aac|anc|aax|arr|asr|atx|axa|axs|dcp|isc|lar|lax|rla|rra|slo|sre|sxa|sya|xas|xaa)\\b"
+				},
+				{
+					"name": "keyword.other.opcode.6502.illegal.kickass",
+					"match": "\\b(aso|rln|lse|rrd|sax|lax|dcp|isb|anc|alr|arr|ane|anx|sbx|las|sha|shs|shx|shy|npo|cim|dop|top)\\b"
+				}
+			]
+		},
+		"composed": {
+			"patterns": [
+				{
+					"name": "keyword.other.composed.8bit.c6510",
+					"match": "(?:^|\\s+)(move8|move8x|add8|adda8|sub8|suba8|swap8|swap8x|push8|pop8)\\b"
+				},
+				{
+					"name": "keyword.other.composed.16bit.c6510",
+					"match": "(?:^|\\s+)(move16|move16x|inc16|dec16|add16|adda16|sub16|suba16|swap16|swap16x|cmp16bne|cmp16beq|push16|pop16|asl16|lsr16)\\b"
+				},
+				{
+					"name": "keyword.other.composed.longbranch.c6510",
+					"match": "(?:^|\\s+)(lbpl|lbmi|lbvc|lbvs|lbcc|lbcs|lbne|lbeq)\\b"
+				}
+			]
+		},
+		"support": {
+			"patterns": [
+				{
+					"name": "support.other.macro.startup.c6510",
+					"match": "(?:^|\\s+)(basic_startup)\\b"
+				},
+				{
+					"name": "support.other.macro.vic.c6510",
+					"match": "(?:^|\\s+)(set_d011|set_d016|set_d018|set_bank_addr)\\b"
+				},
+				{
+					"name": "support.other.macro.memory.c6510",
+					"match": "(?:^|\\s+)(memset|memmove|memcopy|prgfilesize|text|incprgorg)\\b"
+				}
+			]
+		},
+		"misc": {
+			"patterns": [
+				{
+					"name": "storage.type.keyword.c6510",
+					"match": "(?:^|\\s+)(var|const)\\b"
+				},
+				{
+					"name": "storage.type.memory.c6510",
+					"match": "(?:^|\\s+)(byte|\\.byte|sbyte|word)\\b"
+				},
+				{
+					"name": "variable.language.org.c6510",
+					"match": "(?:^|\\s+)@\\b"
+				},
+				{
+					"name": "keyword.other.preprocessor.c6510",
+					"match": "(?:^|\\s+)(include|incbin|incprg)\\b"
+				},
+				{
+					"name": "keyword.other.namespace.c6510",
+					"match": "(?:^|\\s+)namespace\\b"
+				},
+				{
+					"name": "keyword.other.macro.c6510",
+					"match": "(?:^|\\s+)macro\\b"
+				},
+				{
+					"name": "storage.modifier.c6510",
+					"match": "(?:^|\\s+)align\\b"
+				},
+				{
+					"name": "meta.label.c6510",
+					"match": "(?:^\\s*)(!|([a-zA-Z_][a-zA-Z0-9_]*))\\:",
+					"captures": {
+						"1": { "name": "entity.other.attribute-name.label.c6510"}
+					}
+				}
+			]
+		},
+		"constants": {
+			"patterns": [
+				{
+					"name": "meta.numeric.hex.c6510",
+					"match": "(?:\\$\\b)(\\h+)\\b",
+					"captures": {
+						"1": { "name": "constant.numeric.hex.c6510" }
+					}
+				},
+				{
+					"name": "meta.numeric.decimal.c6510",
+					"match": "(?<=[^%$]\\b)([0-9]+)\\b",
+					"captures": {
+						"1": { "name": "constant.numeric.decimal.c6510" }
+					}
+				},
+				{
+					"name": "meta.numeric.binary.c6510",
+					"match": "(?:\\%\\b)([01]+)\\b",
+					"captures": {
+						"1": { "name": "constant.numeric.binary.c6510" }
+					}
+				},
+				{
+					"name": "constant.language.bool.c6510",
+					"match": "\\b(true|false)\\b"
+				}
+			]
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operators.c6510",
+					"match": "![+]{1,2}|![\\-]{1,2}|[+\\-*/\\\\!|&<>^=~\\:#,()]"
+				}
+			]
 		},
 		"strings": {
 			"name": "string.quoted.double.c6510",
