@@ -1,25 +1,61 @@
 {
-    "name": "c6510-asm",
-    "displayName": "c6510-Assembler",
-    "description": "Language support for c6510 assembler (C64)",
-    "version": "0.0.1",
-    "engines": {
-        "vscode": "^1.58.0"
-    },
-    "categories": [
-        "Programming Languages"
-    ],
-    "contributes": {
-        "languages": [{
-            "id": "c6510",
-            "aliases": ["c6510-asm", "c6510"],
-            "extensions": [".s",".i",".asm"],
-            "configuration": "./language-configuration.json"
-        }],
-        "grammars": [{
-            "language": "c6510",
-            "scopeName": "source.c6510",
-            "path": "./syntaxes/c6510.tmLanguage.json"
-        }]
-    }
+	"name": "c6510-asm",
+	"displayName": "c6510-Assembler",
+	"description": "Language support for c6510 assembler (C64)",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.58.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"activationEvents": [
+		"onCommand:c6510-asm.helloWorld"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"languages": [
+			{
+				"id": "c6510",
+				"aliases": [
+					"c6510-asm",
+					"c6510"
+				],
+				"extensions": [
+					".s",
+					".i",
+					".asm"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "c6510",
+				"scopeName": "source.c6510",
+				"path": "./syntaxes/c6510.tmLanguage.json"
+			}
+		],
+		"commands": [
+			{
+				"command": "c6510-asm.helloWorld",
+				"title": "Hello World"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.58.0",
+		"@types/node": "14.x",
+		"eslint": "^7.27.0",
+		"@typescript-eslint/eslint-plugin": "^4.26.0",
+		"@typescript-eslint/parser": "^4.26.0",
+		"typescript": "^4.3.2"
+	}
 }
