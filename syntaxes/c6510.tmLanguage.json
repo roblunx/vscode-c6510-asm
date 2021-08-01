@@ -205,18 +205,22 @@
 			]
 		},
 		"embedded": {
-			"name": "meta.line.lua.c6510",
-			"begin": "(?:^|\\s+)(lua)\\s+",
-			"end": "$",
-			"captures": {
-				"1": { "name": "keyword.other.lua.c6510" }
-			},
-			"patterns": [{
-				"begin": "(\\G)",
-				"end": "$",
-				"contentName": "meta.embedded.line.lua",
-				"patterns": [{ "include": "source.lua" }]
-			}]
+			"patterns": [
+				{
+					"name": "meta.line.lua.c6510",
+					"begin": "(?:^|\\s+)(lua)\\s+",
+					"end": "$",
+					"captures": {
+						"1": { "name": "keyword.other.lua.c6510" }
+					},
+					"patterns": [{
+						"begin": "(\\G)",
+						"end": "$",
+						"contentName": "meta.embedded.line.lua",
+						"patterns": [{ "include": "source.lua" }]
+					}]
+				}
+			]
 		}
 	},
 	"scopeName": "source.c6510"
