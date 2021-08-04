@@ -33,7 +33,12 @@
 			{
 				"language": "c6510",
 				"scopeName": "source.c6510",
-				"path": "./syntaxes/c6510.tmLanguage.json"
+				"path": "./syntaxes/c6510.tmLanguage.json",
+				"embeddedLanguages": {
+					"source.lua": "lua",
+					"meta.embedded.line.lua": "lua",
+					"meta.embedded.block.lua": "lua"
+				  }
 			}
 		],
 		"commands": [
