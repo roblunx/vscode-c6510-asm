@@ -218,7 +218,8 @@
 						"end": "$",
 						"contentName": "meta.embedded.line.lua",
 						"patterns": [{ "include": "source.lua" }]
-					}]
+					}],
+					"comment": "Found this helpful: https://superuser.com/questions/1537646/syntax-highlighting-for-embedded-languages-in-vs-code"
 				},
 				{
 					"name": "meta.block.lua.c6510",
