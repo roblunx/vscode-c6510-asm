@@ -4,12 +4,16 @@ import * as vscode from 'vscode';
 import {opcodes} from './opcodes';
 import {vicregs} from './vic-regs';
 import {sidregs} from './sid-regs';
+import {cia1regs} from './cia1-regs';
+import {cia2regs} from './cia2-regs';
 
 
 // This uses the spread operator "..." to merge two objects into a new object.
 let helpTexts:any = {
 	...vicregs,
-	...sidregs
+	...sidregs,
+	...cia1regs,
+	...cia2regs
 };
 
 for (let k in opcodes) {
