@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import {opcodes} from './opcodes';
+import {illegalOpcodes} from './illegal-opcodes';
 import {vicregs} from './vic-regs';
 import {sidregs} from './sid-regs';
 import {cia1regs} from './cia1-regs';
@@ -20,6 +21,9 @@ for (let k in opcodes) {
 	helpTexts[k.toLowerCase()] = "### " + k + "\n```text\n" + opcodes[k] + "\n```";
 }
 
+for (let k in illegalOpcodes) {
+	helpTexts[k.toLowerCase()] = "### " + k + "\n" + illegalOpcodes[k];
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
