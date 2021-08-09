@@ -47,10 +47,44 @@ export function activate(context: vscode.ExtensionContext) {
 	let hoverProvider = vscode.languages.registerHoverProvider('c6510', {
 		provideHover(document, position, token): vscode.ProviderResult<vscode.Hover>
 		{
-			let word = document.getText(document.getWordRangeAtPosition(position, /[\w$]+/));
+			let word = document.getText(document.getWordRangeAtPosition(position, /[\w$%]+/));
 			let help = helpTexts[word.toLowerCase()];
+
 			if (!help)
-				return null;
+			{
+				let m,v;
+				let dec,hex,bin;
+
+				// Check if we can match the word as a number instead.
+				if (m = word.match(/^([0-9]+)$/))
+				{
+					v = parseInt(m[1], 10);
+					dec = v.toString(10);
+					hex = v.toString(16);
+					bin = v.toString(2);
+				}
+				else if (m = word.match(/^\$([0-9a-fA-F]+)$/))
+				{
+					v = parseInt(m[1], 16);
+					dec = v.toString(10);
+					hex = v.toString(16);
+					bin = v.toString(2);
+				}
+				else if (m = word.match(/^%([01]+)$/))
+				{
+					v = parseInt(m[1], 2);
+					dec = v.toString(10);
+					hex = v.toString(16);
+					bin = v.toString(2);
+				}
+				else
+					return null;
+
+				help = " * Dec: `" + dec + "`  \n" +
+				       " * Hex: `$" + hex + "`  \n" +
+					   " * Bin: `%" + bin + "`  \n";
+			}
+
 			let markdown = new vscode.MarkdownString();
 			markdown.appendMarkdown(help);
 			return new vscode.Hover(markdown);
