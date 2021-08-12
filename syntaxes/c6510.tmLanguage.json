@@ -224,15 +224,14 @@
 				{
 					"name": "meta.block.lua.c6510",
 					"begin": "(?:^|\\s+)(lua)\\s+{",
-					"end": "(?<=[^\"}]*([\"][^\"]*[\"][^\"}]*)*})",
-					"end-comment": "Note that the whole pattern is a look-behind",
+					"end": "(?<=^\\s*}\\s*$)",
+					"comment": "Note that the whole end pattern is a look-behind, it will be consumed by the sub-pattern end",
 					"captures": {
 						"1": { "name": "keyword.other.lua.c6510" }
 					},
 					"patterns": [{
 						"begin": "(^|\\G)",
-						"end": "(?<=[^\"}]*([\"][^\"]*[\"][^\"}]*)*)}",
-						"end-comment": "Note that } is after the look-behind so it will be consumed",
+						"end": "^\\s*}\\s*$",
 						"contentName": "meta.embedded.block.lua",
 						"patterns": [{ "include": "source.lua" }]
 					}]
