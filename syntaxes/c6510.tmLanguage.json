@@ -188,7 +188,7 @@
 		"operators": {
 			"patterns": [
 				{
-					"name": "keyword.operators.c6510",
+					"name": "keyword.operator.c6510",
 					"match": "![+]{1,2}|![\\-]{1,2}|[+\\-*/\\\\!|&<>^=~\\:#,()]"
 				}
 			]
