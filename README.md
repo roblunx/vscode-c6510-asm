@@ -38,9 +38,10 @@ conflicts with c6510 variables used in the scripts since they are prefixed with 
 
 ### 0.0.2
 
-Added icon by Markus Klein (LMan).
+- Added icon by Markus Klein (LMan).
+- Added missing Squirrel support (semi-working)
 
 ### 0.0.1
 
-Initial pre-release
+- Initial pre-release
 
