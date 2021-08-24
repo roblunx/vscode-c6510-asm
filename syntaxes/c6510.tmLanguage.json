@@ -235,6 +235,36 @@
 						"contentName": "meta.embedded.block.lua",
 						"patterns": [{ "include": "source.lua" }]
 					}]
+				},
+				{
+					"name": "meta.line.squirrel.c6510",
+					"begin": "(?:^|\\s+)(sq)\\s+(?=[^\\s{]+)",
+					"end": "$",
+					"captures": {
+						"1": { "name": "keyword.other.squirrel.c6510" }
+					},
+					"patterns": [{
+						"begin": "(\\G)",
+						"end": "$",
+						"contentName": "meta.embedded.line.squirrel",
+						"patterns": [{ "include": "source.squirrel" }]
+					}],
+					"comment": "Found this helpful: https://superuser.com/questions/1537646/syntax-highlighting-for-embedded-languages-in-vs-code"
+				},
+				{
+					"name": "meta.block.squirrel.c6510",
+					"begin": "(?:^|\\s+)(sq)\\s+{",
+					"end": "(?<=^\\s*}\\s*$)",
+					"comment": "Note that the whole end pattern is a look-behind, it will be consumed by the sub-pattern end",
+					"captures": {
+						"1": { "name": "keyword.other.squirrel.c6510" }
+					},
+					"patterns": [{
+						"begin": "(^|\\G)",
+						"end": "^\\s*}\\s*$",
+						"contentName": "meta.embedded.block.squirrel",
+						"patterns": [{ "include": "source.squirrel" }]
+					}]
 				}
 			]
 		}
