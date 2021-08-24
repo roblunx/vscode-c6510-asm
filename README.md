@@ -28,8 +28,11 @@ require installation of separate extensions for those.
 
 ## Known Issues
 
-There is a known limitation for embedded scripts that require the ending curly bracket to be
+There is a known limitation for embedded Lua scripts that require the ending curly bracket to be
 alone on an empty line.
+
+The embedded language Squirrel's specification treat `#` as the start of a line comment which
+conflicts with c6510 variables used in the scripts since they are prefixed with `##`.
 
 ## Release Notes
 
