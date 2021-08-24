@@ -6,4 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-- Initial release
+## [0.0.2] - 2021-08-24
+### Added
+- Icon by Markus Klein (LMan)
+
+## [0.0.1] - 2021-08-13
+### Added
+- Initial pre-release
