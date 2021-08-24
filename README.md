@@ -36,6 +36,10 @@ conflicts with c6510 variables used in the scripts since they are prefixed with 
 
 ## Release Notes
 
+### 0.0.2
+
+Added icon by Markus Klein (LMan).
+
 ### 0.0.1
 
 Initial pre-release
