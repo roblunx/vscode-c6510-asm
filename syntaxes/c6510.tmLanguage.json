@@ -246,8 +246,8 @@
 					"patterns": [{
 						"begin": "(\\G)",
 						"end": "$",
-						"contentName": "meta.embedded.line.squirrel",
-						"patterns": [{ "include": "source.squirrel" }]
+						"contentName": "meta.embedded.line.c6510-sq",
+						"patterns": [{ "include": "source.c6510-sq" }]
 					}],
 					"comment": "Found this helpful: https://superuser.com/questions/1537646/syntax-highlighting-for-embedded-languages-in-vs-code"
 				},
@@ -262,8 +262,8 @@
 					"patterns": [{
 						"begin": "(^|\\G)",
 						"end": "}",
-						"contentName": "meta.embedded.block.squirrel",
-						"patterns": [{ "include": "source.squirrel" }]
+						"contentName": "meta.embedded.block.c6510-sq",
+						"patterns": [{ "include": "source.c6510-sq" }]
 					}]
 				}
 			]

@@ -33,6 +33,10 @@
 					".asm"
 				],
 				"configuration": "./language-configuration.json"
+			},
+			{
+				"id": "c6510-sq",
+				"configuration": "./language-configuration.json"
 			}
 		],
 		"grammars": [
@@ -43,8 +47,16 @@
 				"embeddedLanguages": {
 					"source.lua": "lua",
 					"meta.embedded.line.lua": "lua",
-					"meta.embedded.block.lua": "lua"
+					"meta.embedded.block.lua": "lua",
+					"source.c6510-sq": "c6510-sq",
+					"meta.embedded.line.c6510-sq": "c6510-sq",
+					"meta.embedded.block.c6510-sq": "c6510-sq"
 				  }
+			},
+			{
+				"language": "c6510-sq",
+				"scopeName": "source.c6510-sq",
+				"path": "./syntaxes/squirrel.tmLanguage.json"
 			}
 		],
 		"commands": [
