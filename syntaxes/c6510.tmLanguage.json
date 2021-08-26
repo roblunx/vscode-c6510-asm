@@ -144,6 +144,13 @@
 					"match": "(?:^|\\s+)macro\\b"
 				},
 				{
+					"match": "(?:\\b)(vice)(?:[^a-zA-Z0-9:](.*)|$)",
+					"captures": {
+						"1": { "name": "keyword.other.vice.c6510" },
+						"2": { "name": "variable.other.vice-args.c6510" }
+					}
+				},
+				{
 					"name": "storage.modifier.c6510",
 					"match": "(?:^|\\s+)align\\b"
 				},

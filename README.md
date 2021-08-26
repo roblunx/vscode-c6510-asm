@@ -46,6 +46,7 @@ alone on an empty line.
 - Added and adapted Squirrel grammar file from VS Code Extension [marcinbar.vscode-squirrel](https://bitbucket.org/marcinbar91/vscode-squirrel/src/master/)
   - Uses embedded language id and scope `c6510-sq` so it wont be used for normal Squirrel files
   - Added support for c6510 variable references within the script
+- Added missing `vice` keyword
 
 ### 0.0.2
 
