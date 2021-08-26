@@ -3730,6 +3730,14 @@
                 {
                     "name": "variable.other.readwrite.squirrel",
                     "match": "[_$[:alpha:]][_$[:alnum:]]*"
+                },
+                {
+                    "match": "##([\\._$[:alpha:]][\\._$[:alnum:]]*)",
+                    "captures": {
+                        "1": {
+                            "name": "variable.other.c6510.squirrel"
+                        }
+                    }
                 }
             ]
         },
@@ -5058,7 +5066,7 @@
                     "contentName": "comment.line.double-slash.squirrel"
                 },
                 {
-                    "begin": "(#).*",
+                    "begin": "(#[^#]).*",
                     "beginCaptures": {
                         "1": {
                             "name": "punctuation.definition.comment.squirrel"
