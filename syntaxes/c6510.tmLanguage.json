@@ -254,14 +254,14 @@
 				{
 					"name": "meta.block.squirrel.c6510",
 					"begin": "(?:^|\\s+)(sq)\\s+{",
-					"end": "(?<=^\\s*}\\s*$)",
+					"end": "(?<=})",
 					"comment": "Note that the whole end pattern is a look-behind, it will be consumed by the sub-pattern end",
 					"captures": {
 						"1": { "name": "keyword.other.squirrel.c6510" }
 					},
 					"patterns": [{
 						"begin": "(^|\\G)",
-						"end": "^\\s*}\\s*$",
+						"end": "}",
 						"contentName": "meta.embedded.block.squirrel",
 						"patterns": [{ "include": "source.squirrel" }]
 					}]
