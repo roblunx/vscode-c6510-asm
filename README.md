@@ -31,6 +31,14 @@ require installation of separate extensions for those.
 There is a known limitation for embedded Lua scripts that require the ending curly bracket to be
 alone on an empty line.
 
+## Credits
+
+- Icon by Markus Klein (LMan)
+- Embedded Squirrel script syntax highlighting based on grammar file from VS Code Extension [marcinbar.vscode-squirrel](https://bitbucket.org/marcinbar91/vscode-squirrel/src/master/)
+- Memory reference information from [Joe Forster/STA](http://sta.c64.org/cbm64mem.html)
+- OpCode reference information from [mass:werk](https://www.masswerk.at/6502/6502_instruction_set.html) (Original author unknown).
+- Illegal Opcode reference information originally from [this](http://members.chello.nl/taf.offenga/illopc31.txt) document by Freddy Offenga. The web page is not available anymore but can be found on [Internet Archive / Wayback Machine](https://archive.org/web/).
+
 ## Release Notes
 
 ### 0.0.3
