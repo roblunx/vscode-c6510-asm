@@ -31,10 +31,13 @@ require installation of separate extensions for those.
 There is a known limitation for embedded Lua scripts that require the ending curly bracket to be
 alone on an empty line.
 
-The embedded language Squirrel's specification treat `#` as the start of a line comment which
-conflicts with c6510 variables used in the scripts since they are prefixed with `##`.
-
 ## Release Notes
+
+### 0.0.3
+
+- Added and adapted Squirrel grammar file from VS Code Extension [marcinbar.vscode-squirrel](https://bitbucket.org/marcinbar91/vscode-squirrel/src/master/)
+  - Uses embedded language id and scope `c6510-sq` so it wont be used for normal Squirrel files
+  - Added support for c6510 variable references within the script
 
 ### 0.0.2
 
