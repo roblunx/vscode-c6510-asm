@@ -114,7 +114,6 @@ export async function activate(context: vscode.ExtensionContext) {
 			let query = lang.query(patterns);
 			let matches = query.matches(tree.rootNode);
 
-			// TODO: handle the case of absolute label reference "foo:.gnu"
 			// TODO: handle macro parameters
 
 			for (let i = 0; i < matches.length; i++) {
@@ -123,11 +122,20 @@ export async function activate(context: vscode.ExtensionContext) {
 
 				// Remove ending colon in case the match capture is a label
 				if (node.type == 'label') {
-					if (text.startsWith('.') && word.startsWith('.'))
-					{
-						let range = getScopeRange(node);
-						if (!range.contains(position))
-							continue;
+					if (text.startsWith('.')) {
+						if (word.startsWith('.')) {
+							// Check if the local name we look for is within the current local label's scope.
+							let range = getScopeRange(node);
+							if (!range.contains(position))
+								continue;
+						}
+						else {
+							// Get the current local label's canonical name to compare with the canonical name we look for.
+							let startNode = getScopeStart(node);
+							if (!startNode || startNode.type != 'label')
+								continue;
+							text = startNode.text + text;
+						}
 					}
 					text = text.slice(0,-1)
 				}
@@ -153,6 +161,19 @@ function insideMacro(node: Parser.SyntaxNode): Parser.SyntaxNode | null
 		node = node.parent;
 		if (node.type == 'macro_definition')
 			return node;
+	}
+	return null;
+}
+
+// Finds the previous global label in the same scope level.
+function getScopeStart(labelNode: Parser.SyntaxNode): Parser.SyntaxNode | null
+{
+	let node = labelNode.previousSibling;
+	while (node)
+	{
+		if (node.type == 'label' && !node.text.startsWith('.'))
+			return node;
+		node = node.previousSibling;
 	}
 	return null;
 }
