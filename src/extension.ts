@@ -7,6 +7,8 @@ import {vicregs} from './vic-regs';
 import {sidregs} from './sid-regs';
 import {cia1regs} from './cia1-regs';
 import {cia2regs} from './cia2-regs';
+import * as Parser from 'web-tree-sitter';
+import * as path from 'path';
 
 
 // This uses the spread operator "..." to merge two objects into a new object.
@@ -27,8 +29,14 @@ for (let k in illegalOpcodes) {
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	
+	let langFile = path.join(__dirname, '../tree-sitter-c6510.wasm');
+	await Parser.init();
+	const parser = new Parser();
+	const lang = await Parser.Language.load(langFile);
+	parser.setLanguage(lang);
+
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	//console.log('Congratulations, your extension "c6510-asm" is now active!');
@@ -90,7 +98,102 @@ export function activate(context: vscode.ExtensionContext) {
 			return new vscode.Hover(markdown);
 		}
 	});
+
+	let definitionProvider = vscode.languages.registerDefinitionProvider('c6510', {
+		provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.ProviderResult<vscode.Definition|vscode.DefinitionLink[]>
+		{
+			let word = document.getText(document.getWordRangeAtPosition(position, /[a-zA-Z_\.@]([a-zA-Z_\.@0-9:]*[a-zA-Z_\.@0-9])*/));
+			let tree = parser.parse(document.getText());
+			let pattern1 = '(variable_definition name:(identifier) @id0)';
+			let pattern2 = '(assignment_expression name:(identifier) @id1)';
+			let pattern3 = '(label) @id2';
+			let pattern4 = '(macro_definition name:(identifier) @id3)'
+			let patterns = pattern1 + pattern2 + pattern3 + pattern4;
+			let result = [];
+
+			let query = lang.query(patterns);
+			let matches = query.matches(tree.rootNode);
+
+			// TODO: handle the case of absolute label reference "foo:.gnu"
+			// TODO: handle macro parameters
+
+			for (let i = 0; i < matches.length; i++) {
+				let node = matches[i].captures[0].node;
+				let text = node.text;
+
+				// Remove ending colon in case the match capture is a label
+				if (node.type == 'label') {
+					if (text.startsWith('.') && word.startsWith('.'))
+					{
+						let range = getScopeRange(node);
+						if (!range.contains(position))
+							continue;
+					}
+					text = text.slice(0,-1)
+				}
+
+				if (text == word) {
+					let location = new vscode.Location(document.uri, new vscode.Position(node.startPosition.row, node.startPosition.column));
+					result.push(location);
+				}
+			}
+
+			return result;
+		}
+	});
+
 	context.subscriptions.push(hoverProvider);
+	context.subscriptions.push(definitionProvider);
+}
+
+function insideMacro(node: Parser.SyntaxNode): Parser.SyntaxNode | null
+{
+	while (node.parent)
+	{
+		node = node.parent;
+		if (node.type == 'macro_definition')
+			return node;
+	}
+	return null;
+}
+
+// Finds the scope range for a specified local label node.
+function getScopeRange(labelNode: Parser.SyntaxNode): vscode.Range
+{
+	let macro = insideMacro(labelNode)
+	if (macro)
+	{
+		let startPos = new vscode.Position(macro.startPosition.row, macro.startPosition.column);
+		let endPos = new vscode.Position(macro.endPosition.row, macro.endPosition.column);
+		return new vscode.Range(startPos, endPos);
+	}
+
+	// Find previous global label
+	let startNode = labelNode;
+	let node = labelNode.previousSibling;
+	while (node)
+	{
+		startNode = node;
+		if (node.type == 'label' && !node.text.startsWith('.'))
+			break;
+		node = node.previousSibling;
+	}
+
+	// Find next global label
+	let endNode = labelNode;
+	node = labelNode.nextSibling;
+	while (node)
+	{
+		endNode = node;
+		if (node.type == 'label' && !node.text.startsWith('.'))
+			break;
+		node = node.nextSibling;
+	}
+
+	let startPos = new vscode.Position(startNode.startPosition.row, startNode.startPosition.column);
+	let endPos = new vscode.Position(endNode?.endPosition.row, endNode.endPosition.column);
+
+	return new vscode.Range(startPos, endPos);
 }
 
 // this method is called when your extension is deactivated

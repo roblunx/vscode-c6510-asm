@@ -51,7 +51,7 @@
 					"source.c6510-sq": "c6510-sq",
 					"meta.embedded.line.c6510-sq": "c6510-sq",
 					"meta.embedded.block.c6510-sq": "c6510-sq"
-				  }
+				}
 			},
 			{
 				"language": "c6510-sq",
@@ -80,5 +80,8 @@
 		"@typescript-eslint/eslint-plugin": "^4.26.0",
 		"@typescript-eslint/parser": "^4.26.0",
 		"typescript": "^4.3.2"
+	},
+	"dependencies": {
+		"web-tree-sitter": "^0.19.4"
 	}
 }
