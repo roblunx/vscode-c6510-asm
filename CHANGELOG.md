@@ -5,6 +5,14 @@ All notable changes to the "c6510-asm" extension will be documented in this file
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+- Multi-file `Go to definition` support
+
+## [0.0.4] - 2021-10-26
+### Added
+- `Go to definition` support in the same file
+
+### Fixed
+- Missing syntax highlight of local labels
 
 ## [0.0.3] - 2021-08-26
 ### Added
