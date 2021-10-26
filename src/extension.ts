@@ -104,6 +104,26 @@ export async function activate(context: vscode.ExtensionContext) {
 		{
 			let word = document.getText(document.getWordRangeAtPosition(position, /[a-zA-Z_\.@]([a-zA-Z_\.@0-9:]*[a-zA-Z_\.@0-9])*/));
 			let tree = parser.parse(document.getText());
+
+			// Check if this word is inside a macro definition and if so if it is one of the parameters.
+			let pointNode = tree.rootNode.descendantForPosition({ row: position.line, column: position.character });
+			let macroNode = insideMacro(pointNode);
+			if (macroNode)
+			{
+				let macroPattern = '(identifier_bitwidth (identifier) @id)';
+				let macroQuery = lang.query(macroPattern);
+				let macroMatches = macroQuery.matches(macroNode);
+				for (let i=0 ; i<macroMatches.length ; i++)
+				{
+					let node = macroMatches[i].captures[0].node;
+					if (node.text == word)
+					{
+						let location = new vscode.Location(document.uri, new vscode.Position(node.startPosition.row, node.startPosition.column));
+						return [location];
+					}
+				}
+			}
+
 			let pattern1 = '(variable_definition name:(identifier) @id0)';
 			let pattern2 = '(assignment_expression name:(identifier) @id1)';
 			let pattern3 = '(label) @id2';
@@ -113,8 +133,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			let query = lang.query(patterns);
 			let matches = query.matches(tree.rootNode);
-
-			// TODO: handle macro parameters
 
 			for (let i = 0; i < matches.length; i++) {
 				let node = matches[i].captures[0].node;
