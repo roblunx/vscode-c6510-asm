@@ -64,7 +64,28 @@
 				"command": "c6510-asm.helloWorld",
 				"title": "Hello World"
 			}
-		]
+		],
+		"configuration": {
+			"title": "c6510",
+			"properties": {
+				"c6510.buildFile": {
+					"type": "string",
+					"default": "build.json",
+					"description": "Name of the file describing how to build the source in the directory of the currently open file. This file also specifies paths to search for included files when looking for definitions/references."
+				},
+				"c6510.executablePath": {
+					"type": "string",
+					"description": "Path to the c6510 binary. Unless specified it is expected to be found in the default search path."
+				},
+				"c6510.includePaths": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"description": "Array of global paths to consider when searching for included files. E.g. the directory with the c6510 provided include files."
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

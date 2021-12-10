@@ -27,14 +27,18 @@ for (let k in illegalOpcodes) {
 	helpTexts[k.toLowerCase()] = "### " + k + "\n" + illegalOpcodes[k];
 }
 
+let parser: Parser;
+let lang: Parser.Language;
+let includeSearchPaths: vscode.Uri[];
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
 	
 	let langFile = path.join(__dirname, '../tree-sitter-c6510.wasm');
 	await Parser.init();
-	const parser = new Parser();
-	const lang = await Parser.Language.load(langFile);
+	parser = new Parser();
+	lang = await Parser.Language.load(langFile);
 	parser.setLanguage(lang);
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
@@ -100,10 +104,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	});
 
 	let definitionProvider = vscode.languages.registerDefinitionProvider('c6510', {
-		provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.ProviderResult<vscode.Definition|vscode.DefinitionLink[]>
+		async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Promise<vscode.Definition|vscode.DefinitionLink[]>
 		{
 			let word = document.getText(document.getWordRangeAtPosition(position, /[a-zA-Z_\.@]([a-zA-Z_\.@0-9:]*[a-zA-Z_\.@0-9])*/));
 			let tree = parser.parse(document.getText());
+
+			includeSearchPaths = await getIncludePaths(document);
 
 			// Check if this word is inside a macro definition and if so if it is one of the parameters.
 			let pointNode = tree.rootNode.descendantForPosition({ row: position.line, column: position.character });
@@ -129,47 +135,151 @@ export async function activate(context: vscode.ExtensionContext) {
 			let pattern3 = '(label) @id2';
 			let pattern4 = '(macro_definition name:(identifier) @id3)'
 			let patterns = pattern1 + pattern2 + pattern3 + pattern4;
-			let result = [];
+			let definitionQuery = lang.query(patterns);
 
-			let query = lang.query(patterns);
-			let matches = query.matches(tree.rootNode);
+			let includePattern = '(include_source path:[(identifier) (string)] @id1)';
+			let includeQuery = lang.query(includePattern);
 
-			for (let i = 0; i < matches.length; i++) {
-				let node = matches[i].captures[0].node;
-				let text = node.text;
-
-				// Remove ending colon in case the match capture is a label
-				if (node.type == 'label') {
-					if (text.startsWith('.')) {
-						if (word.startsWith('.')) {
-							// Check if the local name we look for is within the current local label's scope.
-							let range = getScopeRange(node);
-							if (!range.contains(position))
-								continue;
-						}
-						else {
-							// Get the current local label's canonical name to compare with the canonical name we look for.
-							let startNode = getScopeStart(node);
-							if (!startNode || startNode.type != 'label')
-								continue;
-							text = startNode.text + text;
-						}
-					}
-					text = text.slice(0,-1)
-				}
-
-				if (text == word) {
-					let location = new vscode.Location(document.uri, new vscode.Position(node.startPosition.row, node.startPosition.column));
-					result.push(location);
-				}
-			}
-
-			return result;
+			return await getDefinitions(definitionQuery, includeQuery, document.uri, tree, word, position);
 		}
 	});
 
 	context.subscriptions.push(hoverProvider);
 	context.subscriptions.push(definitionProvider);
+}
+
+async function getDefinitions(definitionQuery: Parser.Query, includeQuery: Parser.Query, documentUri: vscode.Uri, tree: Parser.Tree, word: string, position?: vscode.Position): Promise<any[]>
+{
+	let definitionMatches = definitionQuery.matches(tree.rootNode);
+	let result = [];
+
+	for (let i=0 ; i<definitionMatches.length ; i++)
+	{
+		let node = definitionMatches[i].captures[0].node;
+		let text = node.text;
+
+		// Remove ending colon in case the match capture is a label
+		if (node.type == 'label')
+		{
+			if (text.startsWith('.'))
+			{
+				if (position && word.startsWith('.'))
+				{
+					// Check if the local name we look for is within the current local label's scope.
+					let range = getScopeRange(node);
+					if (!range.contains(position))
+						continue;
+				}
+				else
+				{
+					// Get the current local label's canonical name to compare with the canonical name we look for.
+					let startNode = getScopeStart(node);
+					if (!startNode || startNode.type != 'label')
+						continue;
+					text = startNode.text + text;
+				}
+			}
+			text = text.slice(0,-1)
+		}
+
+		if (text == word) {
+			let location = new vscode.Location(documentUri, new vscode.Position(node.startPosition.row, node.startPosition.column));
+			result.push(location);
+		}
+	}
+
+	//
+	// Start with directory of current document before any other specified directory in include search path.
+	// The current document may include files relative itself.
+	//
+	let searchPaths: vscode.Uri[] = [];
+	searchPaths.push(vscode.Uri.joinPath(documentUri, "../"));
+	searchPaths = searchPaths.concat(includeSearchPaths);
+
+	let includeMatches = includeQuery.matches(tree.rootNode);
+
+	for (let i=0 ; i<includeMatches.length ; i++)
+	{
+		// Get file path and remove any surrounding double-quotes.
+		let filePath = includeMatches[i].captures[0].node.text.replace(/^"(.+(?="$))"$/, '$1');
+
+		for (let j=0 ; j<searchPaths.length ; j++)
+		{
+			try {
+				let fileUri = vscode.Uri.joinPath(searchPaths[j], filePath);
+				let fileContent = (await vscode.workspace.fs.readFile(fileUri)).toString();	// throws exception if file cannot be read
+				let fileTree = parser.parse(fileContent);
+
+				let fileResult = await getDefinitions(definitionQuery, includeQuery, fileUri, fileTree, word);
+
+				result = result.concat(fileResult);
+			}
+			catch (error)
+			{
+			}
+		}
+	}
+
+	return result;
+}
+
+async function getIncludePaths(document: vscode.TextDocument): Promise<vscode.Uri[]>
+{
+	let result: vscode.Uri[] = [];
+	let conf = vscode.workspace.getConfiguration('c6510');
+
+	let globalPaths = conf.get<string[]>('includePaths');
+	if (globalPaths)
+	{
+		globalPaths.forEach((p : string) =>
+		{
+			let uri = vscode.Uri.file(p);
+			result.push(uri);
+		});
+	}
+
+	let buildFile = conf.get<string>('buildFile');
+	if (buildFile)
+	{
+		let buildFileUri = vscode.Uri.joinPath(document.uri, "../" + buildFile);
+		try {
+
+			//
+			// Let's read the file explicitly as only containing JSON. If we were to use:
+			//
+			//   let json = require(uri.fsPath);
+			//
+			// Then the content would be interpreted as JavaScript potentially executing unwanted code.
+			//
+
+			let content = (await vscode.workspace.fs.readFile(buildFileUri)).toString();
+			let json = JSON.parse(content);
+			let paths = json['includePaths'];
+			if (paths)
+			{
+				paths.forEach((p : string) =>
+				{
+					if (path.isAbsolute(p))
+					{
+						// Treat absolute path as a local file (with URI scheme 'file://').
+						let uri = vscode.Uri.file(p);
+						result.push(uri);
+					}
+					else
+					{
+						// Treat a relative path as relative the build file's location (possibly other URI scheme than 'file://').
+						let uri = vscode.Uri.joinPath(buildFileUri, "../" + p)
+						result.push(uri);
+					}
+				});
+			}
+		}
+		catch(error)
+		{
+		}
+	}
+
+	return result;
 }
 
 function insideMacro(node: Parser.SyntaxNode): Parser.SyntaxNode | null
