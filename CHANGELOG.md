@@ -7,6 +7,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [Unreleased]
 - Multi-file `Go to definition` support
 
+## [0.0.5] - 2021-12-10
+### Added
+- Multi-file support for `Go to definition`. Source files included are now also searched.
+- Support for build file, currently only for specifying local include directories.
+- Configuration parameters to specify build file name and global include directories.
+
 ## [0.0.4] - 2021-10-26
 ### Added
 - `Go to definition` support in the same file
