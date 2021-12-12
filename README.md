@@ -32,6 +32,30 @@ A Visual Studio Code extension that provides language support for C64 developmen
 Language support like syntax highlighting of the embedded script languages Lua and Squirrel
 require installation of separate extensions for those.
 
+## Settings
+
+The following settings are available for the extension. They are organized under the `C6510` header.
+ * **Build File**: Specifies the name of a build file.
+ * **Include Paths**: An array of strings specifying global include search paths, i.e. directories
+   that are always considered when reading included source files while searching for definitions in
+   `Go to definition`.
+
+## Build file
+
+This is a JSON file currently only used to specify include search paths. It is read when a
+`Go to definition` is requested within a source file in the same directory. The include search paths
+specified within it will be temporarily added to the list of directories that are searched for included files.
+Both when processing the current source file and any source file included.
+
+The paths to the directories can be absolute or relative. Relative paths are relative the
+location of the build file itself.
+
+Example file `build.json`:
+
+    {
+        "includePaths": [ "/foo/bar", "baz" ]
+    }
+
 ## Known Issues
 
 There is a known limitation for embedded Lua scripts that require the ending curly bracket to be
