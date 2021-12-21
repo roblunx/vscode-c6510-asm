@@ -71,6 +71,11 @@ alone on an empty line.
 
 ## Release Notes
 
+### 0.0.6
+
+ - Fixed unnecessary processing multiple times of the same file when included from different sources. 
+ - Prevented failure and never reaching a result due to recursive or cross inclusion.
+
 ### 0.0.5
 
  - Added multi-file support for `Go to definition`. Source files included are now also searched.

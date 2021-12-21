@@ -30,6 +30,7 @@ for (let k in illegalOpcodes) {
 let parser: Parser;
 let lang: Parser.Language;
 let includeSearchPaths: vscode.Uri[];
+let visitedPaths: string[];
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -140,6 +141,8 @@ export async function activate(context: vscode.ExtensionContext) {
 			let includePattern = '(include_source path:[(identifier) (string)] @id1)';
 			let includeQuery = lang.query(includePattern);
 
+			visitedPaths = [];
+
 			return await getDefinitions(definitionQuery, includeQuery, document.uri, tree, word, position);
 		}
 	});
@@ -152,6 +155,8 @@ async function getDefinitions(definitionQuery: Parser.Query, includeQuery: Parse
 {
 	let definitionMatches = definitionQuery.matches(tree.rootNode);
 	let result = [];
+
+	visitedPaths.push(documentUri.toString(true));
 
 	for (let i=0 ; i<definitionMatches.length ; i++)
 	{
@@ -207,12 +212,15 @@ async function getDefinitions(definitionQuery: Parser.Query, includeQuery: Parse
 		{
 			try {
 				let fileUri = vscode.Uri.joinPath(searchPaths[j], filePath);
-				let fileContent = (await vscode.workspace.fs.readFile(fileUri)).toString();	// throws exception if file cannot be read
-				let fileTree = parser.parse(fileContent);
+				if (visitedPaths.indexOf(fileUri.toString(true)) == -1)
+				{
+					let fileContent = (await vscode.workspace.fs.readFile(fileUri)).toString();	// throws exception if file cannot be read
+					let fileTree = parser.parse(fileContent);
 
-				let fileResult = await getDefinitions(definitionQuery, includeQuery, fileUri, fileTree, word);
+					let fileResult = await getDefinitions(definitionQuery, includeQuery, fileUri, fileTree, word);
 
-				result = result.concat(fileResult);
+					result = result.concat(fileResult);
+				}
 			}
 			catch (error)
 			{

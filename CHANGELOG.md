@@ -7,6 +7,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [Unreleased]
 - Multi-file `Go to definition` support
 
+## [0.0.6] - 2021-12-21
+### Fixed
+- Unnecessary processing multiple times of the same file when included from different sources. 
+- Preventing failure and never reaching a result due to recursive or cross inclusion.
+
 ## [0.0.5] - 2021-12-10
 ### Added
 - Multi-file support for `Go to definition`. Source files included are now also searched.
