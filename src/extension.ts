@@ -162,9 +162,17 @@ async function getDefinitions(definitionQuery: Parser.Query, includeQuery: Parse
 	{
 		let node = definitionMatches[i].captures[0].node;
 		let text = node.text;
+		let pattern = definitionMatches[i].pattern;
 
 		// Remove ending colon in case the match capture is a label
 		if (node.type == 'label')
+			text = text.slice(0,-1)
+
+		//
+		// Only 'variable_definition', 'assignment_expression' and 'label' can have local identifiers
+		// where we have to locate the global label to create the canonical name.
+		//
+		if (pattern <= 2)
 		{
 			if (text.startsWith('.'))
 			{
@@ -177,14 +185,14 @@ async function getDefinitions(definitionQuery: Parser.Query, includeQuery: Parse
 				}
 				else
 				{
-					// Get the current local label's canonical name to compare with the canonical name we look for.
-					let startNode = getScopeStart(node);
-					if (!startNode || startNode.type != 'label')
+					// Get the current local name's canonical name.
+					let startNode = getPreviousGlobalLabel(node);
+					if (!startNode)
 						continue;
+
 					text = startNode.text + text;
 				}
 			}
-			text = text.slice(0,-1)
 		}
 
 		if (text == word) {
@@ -299,6 +307,21 @@ function insideMacro(node: Parser.SyntaxNode): Parser.SyntaxNode | null
 			return node;
 	}
 	return null;
+}
+
+function getPreviousGlobalLabel(node: Parser.SyntaxNode): Parser.SyntaxNode | null
+{
+	do
+	{
+		let start = getScopeStart(node);
+		if (start)
+			return start;
+		if (!node.parent)
+			return null;
+		node = node.parent;
+		if (node.type == 'macro_definition')
+			return null;
+	} while (true)
 }
 
 // Finds the previous global label in the same scope level.
