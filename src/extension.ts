@@ -179,7 +179,7 @@ async function getDefinitions(definitionQuery: Parser.Query, includeQuery: Parse
 				if (position && word.startsWith('.'))
 				{
 					// Check if the local name we look for is within the current local label's scope.
-					let range = getScopeRange(node);
+					let range = getScopeRange(node, tree.rootNode);
 					if (!range.contains(position))
 						continue;
 				}
@@ -324,6 +324,21 @@ function getPreviousGlobalLabel(node: Parser.SyntaxNode): Parser.SyntaxNode | nu
 	} while (true)
 }
 
+function getNextGlobalLabel(node: Parser.SyntaxNode): Parser.SyntaxNode | null
+{
+	do
+	{
+		let end = getScopeEnd(node);
+		if (end)
+			return end;
+		if (!node.parent)
+			return null;
+		node = node.parent;
+		if (node.type == 'macro_definition')
+			return null;
+	} while (true)
+}
+
 // Finds the previous global label in the same scope level.
 function getScopeStart(labelNode: Parser.SyntaxNode): Parser.SyntaxNode | null
 {
@@ -337,38 +352,31 @@ function getScopeStart(labelNode: Parser.SyntaxNode): Parser.SyntaxNode | null
 	return null;
 }
 
-// Finds the scope range for a specified local label node.
-function getScopeRange(labelNode: Parser.SyntaxNode): vscode.Range
+// Finds the next global label in the same scope level.
+function getScopeEnd(labelNode: Parser.SyntaxNode): Parser.SyntaxNode | null
 {
-	let macro = insideMacro(labelNode)
-	if (macro)
-	{
-		let startPos = new vscode.Position(macro.startPosition.row, macro.startPosition.column);
-		let endPos = new vscode.Position(macro.endPosition.row, macro.endPosition.column);
-		return new vscode.Range(startPos, endPos);
-	}
-
-	// Find previous global label
-	let startNode = labelNode;
-	let node = labelNode.previousSibling;
+	let node = labelNode.nextSibling;
 	while (node)
 	{
-		startNode = node;
 		if (node.type == 'label' && !node.text.startsWith('.'))
-			break;
-		node = node.previousSibling;
-	}
-
-	// Find next global label
-	let endNode = labelNode;
-	node = labelNode.nextSibling;
-	while (node)
-	{
-		endNode = node;
-		if (node.type == 'label' && !node.text.startsWith('.'))
-			break;
+			return node;
 		node = node.nextSibling;
 	}
+	return null;
+}
+
+// Finds the scope range for a specified local label node.
+function getScopeRange(labelNode: Parser.SyntaxNode, rootNode: Parser.SyntaxNode): vscode.Range
+{
+	let macro = insideMacro(labelNode)
+
+	let startNode = getPreviousGlobalLabel(labelNode);
+	if (!startNode)
+		startNode = macro ? macro : rootNode;
+
+	let endNode = getNextGlobalLabel(labelNode);
+	if (!endNode)
+		endNode = macro ? macro : rootNode;
 
 	let startPos = new vscode.Position(startNode.startPosition.row, startNode.startPosition.column);
 	let endPos = new vscode.Position(endNode?.endPosition.row, endNode.endPosition.column);
