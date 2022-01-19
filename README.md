@@ -71,6 +71,12 @@ alone on an empty line.
 
 ## Release Notes
 
+### 0.0.7
+
+ - Fixed searching for local variable definition, only local labels were handled.
+ - Fixed searching for local names up the syntax tree. Previously only labels at the same
+   level in the syntax tree were considered.
+
 ### 0.0.6
 
  - Fixed unnecessary processing multiple times of the same file when included from different sources. 
