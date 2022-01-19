@@ -313,30 +313,28 @@ function getPreviousGlobalLabel(node: Parser.SyntaxNode): Parser.SyntaxNode | nu
 {
 	do
 	{
-		let start = getScopeStart(node);
-		if (start)
-			return start;
+		let n = getScopeStart(node);
+		if (n)
+			return n;
 		if (!node.parent)
 			return null;
 		node = node.parent;
-		if (node.type == 'macro_definition')
-			return null;
-	} while (true)
+	} while (node.type != 'macro_definition')
+	return null;
 }
 
 function getNextGlobalLabel(node: Parser.SyntaxNode): Parser.SyntaxNode | null
 {
 	do
 	{
-		let end = getScopeEnd(node);
-		if (end)
-			return end;
+		let n = getScopeEnd(node);
+		if (n)
+			return n;
 		if (!node.parent)
 			return null;
 		node = node.parent;
-		if (node.type == 'macro_definition')
-			return null;
-	} while (true)
+	} while (node.type != 'macro_definition')
+	return null;
 }
 
 // Finds the previous global label in the same scope level.
