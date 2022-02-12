@@ -9,6 +9,7 @@ import {cia1regs} from './cia1-regs';
 import {cia2regs} from './cia2-regs';
 import * as Parser from 'web-tree-sitter';
 import * as path from 'path';
+import * as cp from 'child_process';
 
 
 // This uses the spread operator "..." to merge two objects into a new object.
@@ -31,6 +32,7 @@ let parser: Parser;
 let lang: Parser.Language;
 let includeSearchPaths: vscode.Uri[];
 let visitedPaths: string[];
+let outputChannel: vscode.OutputChannel;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -49,10 +51,91 @@ export async function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('c6510-asm.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from c6510-Assembler!');
+	let disposable = vscode.commands.registerCommand('c6510-asm.buildCurrent', async () => {
+		let asm = vscode.workspace.getConfiguration('c6510-asm.assembler');
+		let option = vscode.workspace.getConfiguration('c6510-asm.assembler.option');
+
+		let executablePath = asm.get<string>('executablePath');
+		if (!executablePath)
+			executablePath = 'c6510'
+
+		let cmd = executablePath;
+
+		let includePaths = asm.get<string[]>('includePaths');
+		if (includePaths)
+		{
+			includePaths.forEach(path => {
+				cmd += " -p " + path;
+			});
+		}
+
+		let presetDefs = option.get<string[]>('presetDefines');
+		if (presetDefs)
+		{
+			presetDefs.forEach(pdef => {
+				cmd += " -d " + pdef;
+			});
+		}
+
+		let outputFile = option.get<string>('outputFile');
+		if (!outputFile)
+			outputFile = "program.prg";
+
+		let textEditor = vscode.window.activeTextEditor;
+		if (!textEditor)
+			return;
+
+		let docPath = textEditor.document.uri.fsPath;
+		let docDir = path.dirname(docPath);
+
+		let outputPath = outputFile;
+		if (!path.isAbsolute(outputFile))
+			outputPath = path.join(docDir, outputFile);
+
+		cmd += " -s " + outputPath + " - +";
+
+		let symbolFile = option.get<string>('symbolFile');
+		if (symbolFile)
+		{
+			let symbolPath = symbolFile;
+			if (!path.isAbsolute(symbolFile))
+				symbolPath = path.join(docDir, symbolFile);
+
+			cmd += " -y " + symbolPath;
+		}
+
+		cmd += " " + path.basename(docPath);
+
+		if (!outputChannel)
+			outputChannel = vscode.window.createOutputChannel("c6510 Asm");
+
+		//outputChannel.clear();
+		outputChannel.show(true);
+		outputChannel.appendLine("[Running] " + cmd);
+
+		let startTime = new Date();
+
+		// TODO: For lengthy operations we might want to change 'exec' to 'spawn' instead and register callbacks with .on() method so we can get output as it runs.
+		let options:cp.ExecOptions = { cwd: docDir };
+		cp.exec(cmd, options, (error, stdout, stderr) => {
+			// Print output from command in Debug Console view of debugging window.
+			if (stderr)
+				console.log(stderr);
+			console.log(stdout);
+
+			// Print output from command in Output view of debugee/normal window.
+			if (stderr)
+				outputChannel.append(stderr);
+			outputChannel.append(stdout);
+
+			let endTime = new Date();
+			let t = (endTime.getTime() - startTime.getTime()) / 1000;
+
+			let code = 0;
+			if (error && error.code)
+				code = error.code;
+			outputChannel.appendLine("[Done] exited with code " + code + " in " + t + " seconds");
+		});
 	});
 
 	context.subscriptions.push(disposable);
@@ -242,7 +325,7 @@ async function getDefinitions(definitionQuery: Parser.Query, includeQuery: Parse
 async function getIncludePaths(document: vscode.TextDocument): Promise<vscode.Uri[]>
 {
 	let result: vscode.Uri[] = [];
-	let conf = vscode.workspace.getConfiguration('c6510');
+	let conf = vscode.workspace.getConfiguration('c6510-asm');
 
 	let globalPaths = conf.get<string[]>('includePaths');
 	if (globalPaths)

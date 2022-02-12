@@ -16,7 +16,7 @@
 	],
 	"activationEvents": [
 		"onLanguage:c6510",
-		"onCommand:c6510-asm.helloWorld"
+		"onCommand:c6510-asm.buildCurrent"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -61,28 +61,60 @@
 		],
 		"commands": [
 			{
-				"command": "c6510-asm.helloWorld",
-				"title": "Hello World"
+				"command": "c6510-asm.buildCurrent",
+				"title": "c6510 Asm: Build Current Source File"
 			}
 		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "c6510-asm.buildCurrent",
+					"when": "editorFocus && editorLangId == c6510"
+				}
+			]
+		},
 		"configuration": {
-			"title": "c6510",
+			"title": "c6510 Asm",
 			"properties": {
-				"c6510.buildFile": {
+				"c6510-asm.buildFile": {
 					"type": "string",
 					"default": "build.json",
 					"description": "Name of the file describing how to build the source in the directory of the currently open file. This file also specifies paths to search for included files when looking for definitions/references."
 				},
-				"c6510.executablePath": {
+				"c6510-asm.assembler.executablePath": {
 					"type": "string",
 					"description": "Path to the c6510 binary. Unless specified it is expected to be found in the default search path."
 				},
-				"c6510.includePaths": {
+				"c6510-asm.assembler.includePaths": {
 					"type": "array",
 					"items": {
 						"type": "string"
 					},
 					"description": "Array of global paths to consider when searching for included files. E.g. the directory with the c6510 provided include files."
+				},
+				"c6510-asm.assembler.option.outputFile": {
+					"type": "string",
+					"default": "program.prg",
+					"description": "Specifies the name and optionally path of the resulting output PRG file."
+				},
+				"c6510-asm.assembler.option.symbolFile": {
+					"type": "string",
+					"default": "program.sym",
+					"description": "Specifies the name and optionally path of a symbol file in VICE format resulting from building the source files."
+				},
+				"c6510-asm.assembler.option.additionalSources": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"description": "Adds implicit source files to be processed before the current source file is processed."
+				},
+				"c6510-asm.assembler.option.presetDefines": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"description": "Adds implicit constant definitions before the source files are processed."
 				}
 			}
 		}
