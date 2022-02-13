@@ -85,6 +85,11 @@
 					"type": "string",
 					"description": "Path to the c6510 binary. Unless specified it is expected to be found in the default search path."
 				},
+				"c6510-asm.assembler.clearPreviousOutput": {
+					"type": "boolean",
+					"default": false,
+					"description": "Clear output from previous run every time."
+				},
 				"c6510-asm.assembler.includePaths": {
 					"type": "array",
 					"items": {

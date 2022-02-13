@@ -109,7 +109,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		if (!outputChannel)
 			outputChannel = vscode.window.createOutputChannel("c6510 Asm");
 
-		//outputChannel.clear();
+		if (asm.get<boolean>('clearPreviousOutput'))
+			outputChannel.clear();
+
 		outputChannel.show(true);
 		outputChannel.appendLine("[Running] " + cmd);
 
