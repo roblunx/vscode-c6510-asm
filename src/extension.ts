@@ -120,7 +120,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		cp.exec(cmd, options, (error, stdout, stderr) => {
 			// Print output from command in Debug Console view of debugging window.
 			if (stderr)
-				console.log(stderr);
+				console.error(stderr);
 			console.log(stdout);
 
 			// Print output from command in Output view of debugee/normal window.
