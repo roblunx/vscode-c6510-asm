@@ -16,7 +16,8 @@
 	],
 	"activationEvents": [
 		"onLanguage:c6510",
-		"onCommand:c6510-asm.buildCurrent"
+		"onCommand:c6510-asm.buildCurrent",
+		"onCommand:c6510-asm.buildAndRunCurrent"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
