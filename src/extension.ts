@@ -10,6 +10,7 @@ import {cia2regs} from './cia2-regs';
 import * as Parser from 'web-tree-sitter';
 import * as path from 'path';
 import * as cp from 'child_process';
+import * as os from 'os';
 
 
 // This uses the spread operator "..." to merge two objects into a new object.
@@ -48,10 +49,44 @@ export async function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	//console.log('Congratulations, your extension "c6510-asm" is now active!');
 
+	function initOutput() {
+		let asm = vscode.workspace.getConfiguration('c6510-asm.assembler');
+
+		if (!outputChannel)
+			outputChannel = vscode.window.createOutputChannel("c6510 Asm");
+
+		if (asm.get<boolean>('clearPreviousOutput'))
+			outputChannel.clear();
+
+		outputChannel.show(true);
+	}
+
+	function getDocPath(): string | undefined {
+		let textEditor = vscode.window.activeTextEditor;
+		if (!textEditor)
+			return;
+
+		return textEditor.document.uri.fsPath;
+	}
+
+	function getOutputPath(docDir: string): string {
+		let option = vscode.workspace.getConfiguration('c6510-asm.assembler.option');
+
+		let outputFile = option.get<string>('outputFile');
+		if (!outputFile)
+			outputFile = "program.prg";
+
+		let outputPath = outputFile;
+		if (!path.isAbsolute(outputFile))
+			outputPath = path.join(docDir, outputFile);
+
+		return outputPath;
+	}
+
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('c6510-asm.buildCurrent', async () => {
+	async function buildCurrent() {
 		let asm = vscode.workspace.getConfiguration('c6510-asm.assembler');
 		let option = vscode.workspace.getConfiguration('c6510-asm.assembler.option');
 
@@ -77,20 +112,12 @@ export async function activate(context: vscode.ExtensionContext) {
 			});
 		}
 
-		let outputFile = option.get<string>('outputFile');
-		if (!outputFile)
-			outputFile = "program.prg";
-
-		let textEditor = vscode.window.activeTextEditor;
-		if (!textEditor)
+		let docPath = getDocPath();
+		if (!docPath)
 			return;
 
-		let docPath = textEditor.document.uri.fsPath;
 		let docDir = path.dirname(docPath);
-
-		let outputPath = outputFile;
-		if (!path.isAbsolute(outputFile))
-			outputPath = path.join(docDir, outputFile);
+		let outputPath = getOutputPath(docDir);
 
 		cmd += " -s " + outputPath + " - +";
 
@@ -106,41 +133,105 @@ export async function activate(context: vscode.ExtensionContext) {
 
 		cmd += " " + path.basename(docPath);
 
-		if (!outputChannel)
-			outputChannel = vscode.window.createOutputChannel("c6510 Asm");
-
-		if (asm.get<boolean>('clearPreviousOutput'))
-			outputChannel.clear();
-
-		outputChannel.show(true);
 		outputChannel.appendLine("[Running] " + cmd);
 
 		let startTime = new Date();
 
-		// TODO: For lengthy operations we might want to change 'exec' to 'spawn' instead and register callbacks with .on() method so we can get output as it runs.
-		let options:cp.ExecOptions = { cwd: docDir };
-		cp.exec(cmd, options, (error, stdout, stderr) => {
+		let options:cp.SpawnOptions = { cwd: docDir, shell: true };
+		let child = cp.spawn(cmd, [], options);
+
+		child.stdout?.on('data', (data) => {
 			// Print output from command in Debug Console view of debugging window.
-			if (stderr)
-				console.error(stderr);
-			console.log(stdout);
+			console.log(data.toString('utf8'));
 
 			// Print output from command in Output view of debugee/normal window.
-			if (stderr)
-				outputChannel.append(stderr);
-			outputChannel.append(stdout);
-
-			let endTime = new Date();
-			let t = (endTime.getTime() - startTime.getTime()) / 1000;
-
-			let code = 0;
-			if (error && error.code)
-				code = error.code;
-			outputChannel.appendLine("[Done] exited with code " + code + " in " + t + " seconds");
+			outputChannel.append(data.toString('utf8'));
 		});
-	});
 
-	context.subscriptions.push(disposable);
+		child.stderr?.on('data', (data) => {
+			console.error(data.toString('utf8'));
+			outputChannel.append(data.toString('utf8'));
+		});
+
+		//
+		// This promise is fullfilled once the 'close' event on the child fires and thus resolves it.
+		// Until then the code following will not be executed since we 'await' the promise making this
+		// code synchronous in an asynchronouse way without blocking Node.js event loop.
+		//
+		let code = await new Promise((resolve, reject) => {
+			child.on('close', resolve);
+		});
+
+		let endTime = new Date();
+		let t = (endTime.getTime() - startTime.getTime()) / 1000;
+
+		outputChannel.appendLine("[Done] exited with code " + code + " in " + t + " seconds");
+
+		return code;
+	};
+
+	async function runCurrent() {
+		let emu = vscode.workspace.getConfiguration('c6510-asm.emulator');
+
+		let docPath = getDocPath();
+		if (!docPath)
+			return;
+
+		let docDir = path.dirname(docPath);
+		let outputPath = getOutputPath(docDir);
+
+		let cmd = emu.get<string>('commandLine');
+		if (!cmd)
+			return;
+
+		cmd = cmd.replace(/\${outputPath}/g, outputPath);
+
+		let command;
+		let platform = os.platform();
+
+		// Specify the command line to run w/o buffering stdout and stderr.
+		if (platform == 'linux')
+			command = 'script -q -c "' + cmd + '" /dev/null';
+		else if (platform == 'darwin')
+			command = 'script -q /dev/null ' + cmd;
+		else
+			command = cmd;
+
+		outputChannel.appendLine("[Running] " + cmd);
+
+		let options:cp.SpawnOptions = { cwd: docDir, shell: true };
+		let child = cp.spawn(command, [], options);
+
+		child.stdout?.on('data', (data) => {
+			outputChannel.append(data.toString('utf8'));
+		});
+
+		child.stderr?.on('data', (data) => {
+			outputChannel.append(data.toString('utf8'));
+		});
+
+		let code = await new Promise((resolve, reject) => {
+			child.on('close', resolve);
+		});
+
+		outputChannel.appendLine('[Done] exited with code ' + code);
+
+		return code;
+	};
+
+	let buildCurrentCmd = vscode.commands.registerCommand('c6510-asm.buildCurrent', async () => {
+		initOutput();
+		await buildCurrent();
+	});
+	context.subscriptions.push(buildCurrentCmd);
+
+	let buildAndRunCurrentCmd = vscode.commands.registerCommand('c6510-asm.buildAndRunCurrent', async () => {
+		initOutput();
+		let buildResult = await buildCurrent();
+		if (buildResult == 0)
+			await runCurrent();
+	});
+	context.subscriptions.push(buildAndRunCurrentCmd);
 
 	let hoverProvider = vscode.languages.registerHoverProvider('c6510', {
 		provideHover(document, position, token): vscode.ProviderResult<vscode.Hover>

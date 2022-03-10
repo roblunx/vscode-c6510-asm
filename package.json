@@ -63,12 +63,20 @@
 			{
 				"command": "c6510-asm.buildCurrent",
 				"title": "c6510 Asm: Build Current Source File"
+			},
+			{
+				"command": "c6510-asm.buildAndRunCurrent",
+				"title": "c6510 Asm: Build and Run Current Source File"
 			}
 		],
 		"menus": {
 			"commandPalette": [
 				{
 					"command": "c6510-asm.buildCurrent",
+					"when": "editorFocus && editorLangId == c6510"
+				},
+				{
+					"command": "c6510-asm.buildAndRunCurrent",
 					"when": "editorFocus && editorLangId == c6510"
 				}
 			]
@@ -120,6 +128,11 @@
 						"type": "string"
 					},
 					"description": "Adds implicit constant definitions before the source files are processed."
+				},
+				"c6510-asm.emulator.commandLine": {
+					"type": "string",
+					"default": "x64 -model c64c -autostartprgmode 1 ${outputPath}",
+					"description": "Command line used to invoke emulator. Placeholder variables may be used."
 				}
 			}
 		}
