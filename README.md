@@ -26,6 +26,9 @@ A Visual Studio Code extension that provides language support for C64 developmen
    * label
    * macro
    * macro parameter
+ * Commands for
+   * Build current file
+   * Build and Run current file
 
 ## Requirements
 
@@ -70,6 +73,11 @@ alone on an empty line.
 - Illegal Opcode reference information originally from [this](http://members.chello.nl/taf.offenga/illopc31.txt) document by Freddy Offenga. The web page is not available anymore but can be found on [Internet Archive / Wayback Machine](https://archive.org/web/).
 
 ## Release Notes
+
+### 0.0.8
+
+ - Added command to build current source file.
+ - Added command to build and run current source file.
 
 ### 0.0.7
 

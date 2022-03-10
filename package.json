@@ -2,7 +2,7 @@
 	"name": "c6510-asm",
 	"displayName": "c6510 Assembler",
 	"description": "Language support for c6510 assembler (C64)",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"publisher": "krikkit",
 	"author": {
 		"name": "Robert Lundquist"
