@@ -4,6 +4,13 @@ All notable changes to the "c6510-asm" extension will be documented in this file
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.9] - 2022-03-26
+### Added
+- Documentation of configuration properties in readme file.
+
+### Fixed
+- Broken include path conf following changes when added build (and run) commands.
+
 ## [0.0.8] - 2022-03-10
 ### Added
 - Command to build current source file.

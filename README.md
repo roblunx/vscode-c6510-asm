@@ -86,6 +86,11 @@ alone on an empty line.
 
 ## Release Notes
 
+### 0.0.9
+
+ - Added documentation of configuration properties in readme file.
+ - Fixed broken include path conf following changes when added build (and run) commands.
+
 ### 0.0.8
 
  - Added command to build current source file.
