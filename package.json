@@ -97,14 +97,14 @@
 				"c6510-asm.assembler.clearPreviousOutput": {
 					"type": "boolean",
 					"default": false,
-					"description": "Clear output from previous run every time."
+					"description": "When enabled this will clear the output from previous run every time."
 				},
 				"c6510-asm.assembler.includePaths": {
 					"type": "array",
 					"items": {
 						"type": "string"
 					},
-					"description": "Array of global paths to consider when searching for included files. E.g. the directory with the c6510 provided include files."
+					"description": "An array of strings specifying global include search paths, i.e. directories that are always considered when reading included source files while searching for definitions. E.g. the directory with the c6510 provided include files."
 				},
 				"c6510-asm.assembler.option.outputFile": {
 					"type": "string",
@@ -121,14 +121,14 @@
 					"items": {
 						"type": "string"
 					},
-					"description": "Adds implicit source files to be processed before the current source file is processed."
+					"description": "Array of strings of paths of additional implicit source files to be processed before the current source file is processed."
 				},
 				"c6510-asm.assembler.option.presetDefines": {
 					"type": "array",
 					"items": {
 						"type": "string"
 					},
-					"description": "Adds implicit constant definitions before the source files are processed."
+					"description": "Array of strings of additional implicit constant definitions before the source files are processed."
 				},
 				"c6510-asm.emulator.commandLine": {
 					"type": "string",
