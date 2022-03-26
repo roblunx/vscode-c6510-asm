@@ -419,8 +419,9 @@ async function getIncludePaths(document: vscode.TextDocument): Promise<vscode.Ur
 {
 	let result: vscode.Uri[] = [];
 	let conf = vscode.workspace.getConfiguration('c6510-asm');
+	let asm = vscode.workspace.getConfiguration('c6510-asm.assembler');
 
-	let globalPaths = conf.get<string[]>('includePaths');
+	let globalPaths = asm.get<string[]>('includePaths');
 	if (globalPaths)
 	{
 		globalPaths.forEach((p : string) =>
