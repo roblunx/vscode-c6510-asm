@@ -4,6 +4,10 @@ All notable changes to the "c6510-asm" extension will be documented in this file
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.10] - 2022-04-16
+### Fixed
+- Updated parser to support new operators added to c6510.
+
 ## [0.0.9] - 2022-03-26
 ### Added
 - Documentation of configuration properties in readme file.

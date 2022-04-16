@@ -86,6 +86,10 @@ alone on an empty line.
 
 ## Release Notes
 
+### 0.0.10
+
+ - Updated parser to support new operators added to c6510.
+
 ### 0.0.9
 
  - Added documentation of configuration properties in readme file.
