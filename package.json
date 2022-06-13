@@ -74,11 +74,11 @@
 			"commandPalette": [
 				{
 					"command": "c6510-asm.buildCurrent",
-					"when": "editorFocus && editorLangId == c6510"
+					"when": "editorLangId == c6510"
 				},
 				{
 					"command": "c6510-asm.buildAndRunCurrent",
-					"when": "editorFocus && editorLangId == c6510"
+					"when": "editorLangId == c6510"
 				}
 			]
 		},
