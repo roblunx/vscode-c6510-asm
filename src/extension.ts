@@ -35,8 +35,6 @@ let includeSearchPaths: vscode.Uri[];
 let visitedPaths: string[];
 let outputChannel: vscode.OutputChannel;
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
 	
 	let langFile = path.join(__dirname, '../tree-sitter-c6510.wasm');
@@ -44,10 +42,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	parser = new Parser();
 	lang = await Parser.Language.load(langFile);
 	parser.setLanguage(lang);
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	//console.log('Congratulations, your extension "c6510-asm" is now active!');
 
 	function initOutput() {
 		let asm = vscode.workspace.getConfiguration('c6510-asm.assembler');
@@ -83,9 +77,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		return outputPath;
 	}
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
 	async function buildCurrent() {
 		let asm = vscode.workspace.getConfiguration('c6510-asm.assembler');
 		let option = vscode.workspace.getConfiguration('c6510-asm.assembler.option');
