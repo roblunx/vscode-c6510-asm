@@ -31,7 +31,8 @@
 				"extensions": [
 					".s",
 					".i",
-					".asm"
+					".asm",
+					".inc"
 				],
 				"configuration": "./language-configuration.json"
 			},
