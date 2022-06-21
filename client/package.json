@@ -1,0 +1,18 @@
+{
+	"name": "c6510-asm-lsp-client",
+	"description": "Language client for c6510 assembler (C64)",
+	"version": "0.0.1",
+	"author": {
+		"name": "Robert Lundquist (Krikkit)"
+	},
+	"engines": {
+		"vscode": "^1.58.0"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.58.0"
+	},
+	"dependencies": {
+		"vscode-languageclient": "^8.0.1",
+		"web-tree-sitter": "^0.19.4"
+	}
+}
