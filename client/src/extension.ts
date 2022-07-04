@@ -35,6 +35,7 @@ let lang: Parser.Language;
 let includeSearchPaths: vscode.Uri[];
 let visitedPaths: string[];
 let outputChannel: vscode.OutputChannel;
+//let trees: Map<string, Parser.Tree>;
 let client: LanguageClient | undefined;
 
 function startClient(context: vscode.ExtensionContext) {
@@ -77,6 +78,7 @@ function startClient(context: vscode.ExtensionContext) {
 
 				let documentText = document.getText()
 				let tree = parser.parse(documentText);
+				///let tree = trees.get(originalUri);
 				let node;
 
 				if (!tree || !(node = insideScript(tree, position))) {
@@ -105,6 +107,7 @@ function startClient(context: vscode.ExtensionContext) {
 
 				let documentText = document.getText()
 				let tree = parser.parse(documentText);
+				///let tree = trees.get(originalUri);
 				let node;
 
 				if (!tree || !(node = insideScript(tree, position))) {
@@ -439,6 +442,73 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(hoverProvider);
 	context.subscriptions.push(definitionProvider);
+
+	// trees = new Map<string, Parser.Tree>();
+
+	// function checkAndParseDocument(document: vscode.TextDocument) {
+	// 	if (document.languageId === 'c6510') {
+	// 		console.log("Checking c6510 document");
+	// 		let uri = document.uri.toString();
+	// 		let tree = trees.get(uri);
+	// 		if (!tree) {
+	// 			console.log("Parsing document");
+	// 			tree = parser.parse(document.getText())
+	// 			trees.set(uri, tree)
+	// 		}
+	// 	}
+	// }
+
+	// // Make sure we parse any existing document in an active text editor when extension is activated.
+	// if (vscode.window.activeTextEditor) {
+	// 	let e = vscode.window.activeTextEditor;
+	// 	console.log("Active text editor");
+	// 	console.log(" URI: " + e.document.uri.toString());
+	// 	console.log(" LanguageID: " + e.document.languageId);
+	// 	checkAndParseDocument(e.document);
+	// }
+
+	// let activeTextEditorHandler = vscode.window.onDidChangeActiveTextEditor((e: vscode.TextEditor | undefined) => {
+	// 	if (e) {
+	// 		console.log("Changed active text editor");
+	// 		console.log(" URI: " + e.document.uri.toString());
+	// 		console.log(" LanguageID: " + e.document.languageId);
+
+	// 		checkAndParseDocument(e.document);
+	// 	}
+	// });
+	// context.subscriptions.push(activeTextEditorHandler);
+
+	// let changeTextDocumentHandler = vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
+	// 	let uri = e.document.uri.toString();
+	// 	let tree = trees.get(uri);
+	// 	if (tree) {
+	// 		//console.log("Updating document");
+	// 		e.contentChanges.forEach(c => {
+	// 			let edit: Parser.Edit;
+	// 			let ss = c.text.split("\n");
+	// 			let newEndRow = c.range.start.line + ss.length-1;
+	// 			let newEndCol;
+	// 			if (ss.length == 1)
+	// 				newEndCol = c.range.start.character + c.text.length;
+	// 			else
+	// 				newEndCol = ss[ss.length-1].length;
+	// 			edit = {
+	// 				startIndex: c.rangeOffset,
+	// 				oldEndIndex: c.rangeOffset + c.rangeLength,
+	// 				newEndIndex: c.rangeOffset + c.text.length,
+	// 				startPosition: { column: c.range.start.character, row: c.range.start.line },
+	// 				oldEndPosition: { column: c.range.end.character, row: c.range.end.line },
+	// 				newEndPosition: { column: newEndCol, row: newEndRow }
+	// 			};
+	// 			//console.log(" New text: " + c.text);
+	// 			tree?.edit(edit);
+	// 			tree = parser.parse(e.document.getText(), tree);
+	// 			if (tree)
+	// 				trees.set(uri, tree);
+	// 		});
+	// 	}
+	// });
+	// context.subscriptions.push(changeTextDocumentHandler);
 
 	startClient(context);
 }
