@@ -142,9 +142,9 @@
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -b",
-		"watch": "tsc -b -watch ./client",
+		"watch": "tsc -b -watch ./client ./server",
 		"pretest": "npm run compile && npm run lint",
-		"lint": "eslint ./client/src --ext ts"
+		"lint": "eslint ./client/src ./server/src --ext ts"
 	},
 	"devDependencies": {
 		"@types/node": "14.x",

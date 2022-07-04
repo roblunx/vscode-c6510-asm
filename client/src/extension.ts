@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind} from 'vscode-languageclient/node';
 import {opcodes} from './opcodes';
 import {illegalOpcodes} from './illegal-opcodes';
 import {vicregs} from './vic-regs';
@@ -34,6 +35,128 @@ let lang: Parser.Language;
 let includeSearchPaths: vscode.Uri[];
 let visitedPaths: string[];
 let outputChannel: vscode.OutputChannel;
+let client: LanguageClient | undefined;
+
+function startClient(context: vscode.ExtensionContext) {
+	// The server is implemented in node
+	const serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
+	// The debug options for the server
+	// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
+	const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
+
+	// If the extension is launched in debug mode then the debug server options are used
+	// Otherwise the run options are used
+	const serverOptions: ServerOptions = {
+		run: { module: serverModule, transport: TransportKind.ipc },
+		debug: {
+			module: serverModule,
+			transport: TransportKind.ipc,
+			options: debugOptions
+		}
+	};
+
+	const virtualDocumentContents = new Map<string, string>();
+	const onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();
+
+	let textDocumentContentProvider = vscode.workspace.registerTextDocumentContentProvider('c6510-embedded-content', {
+		onDidChange: onDidChangeEmitter.event,
+		provideTextDocumentContent(uri: vscode.Uri)  {
+			const originalUri = uri.path.slice(1).slice(0, -4);
+			const decodedUri = decodeURIComponent(originalUri);
+			const content = virtualDocumentContents.get(decodedUri);
+			return content;
+		}
+	});
+	context.subscriptions.push(textDocumentContentProvider);
+
+	const clientOptions: LanguageClientOptions = {
+		documentSelector: [{ scheme: 'file', language: 'c6510' }],
+		middleware: {
+			provideCompletionItem: async (document, position, context, token, next) => {
+				const originalUri = document.uri.toString();
+
+				let documentText = document.getText()
+				let tree = parser.parse(documentText);
+				let node;
+
+				if (!tree || !(node = insideScript(tree, position))) {
+					return await next(document, position, context, token);
+				}
+
+				let type = getScriptType(node);
+				let ext = getScriptFileExt(type);
+				virtualDocumentContents.set(originalUri, getScriptVirtualContent(type, tree, document));
+
+				const vdocUriString = `c6510-embedded-content://${type}/${encodeURIComponent(originalUri)}.${ext}`;
+				const vdocUri = vscode.Uri.parse(vdocUriString);
+
+				onDidChangeEmitter.fire(vdocUri);
+
+				return await vscode.commands.executeCommand<vscode.CompletionList>(
+					'vscode.executeCompletionItemProvider',
+					vdocUri,
+					position,
+					context.triggerCharacter
+				);
+			},
+
+			provideHover: async (document, position, token, next) => {
+				const originalUri = document.uri.toString();
+
+				let documentText = document.getText()
+				let tree = parser.parse(documentText);
+				let node;
+
+				if (!tree || !(node = insideScript(tree, position))) {
+					return await next(document, position, token);
+				}
+
+				let type = getScriptType(node);
+				let ext = getScriptFileExt(type);
+				virtualDocumentContents.set(originalUri, getScriptVirtualContent(type, tree, document));
+
+				const vdocUriString = `c6510-embedded-content://${type}/${encodeURIComponent(originalUri)}.${ext}`;
+				const vdocUri = vscode.Uri.parse(vdocUriString);
+
+				onDidChangeEmitter.fire(vdocUri);
+
+				//
+				// This will return an array of Hover instances, according to the documentation. The
+				// typescript compiler disagrees and consider the returned type to be a Hover instance,
+				// but under the hood it seems like it is a javascript object that contains one member
+				// with key '0', i.e. an array like object.
+				//
+				let result = await vscode.commands.executeCommand<vscode.Hover>(
+					'vscode.executeHoverProvider',
+					vdocUri,
+					position
+				);
+
+				//
+				// Extract the first member, if there is one. The command invocation above will return an
+				// array like object, but we cannot return that as-is. It will only work if we return one
+				// instance and not an array of instances.
+				//
+				if (Object.keys(result).length > 0) {
+					return Object.values(result)[0];
+				}
+
+				return null;
+			},
+		}
+	};
+
+	// Create the language client and start the client.
+	client = new LanguageClient(
+		'languageServerExample',
+		'Language Server Example',
+		serverOptions,
+		clientOptions
+	);
+
+	// Start the client. This will also launch the server
+	client.start();
+}
 
 export async function activate(context: vscode.ExtensionContext) {
 	
@@ -316,6 +439,32 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(hoverProvider);
 	context.subscriptions.push(definitionProvider);
+
+	startClient(context);
+}
+
+function getScriptVirtualContent(scriptType: string, tree: Parser.Tree, document: vscode.TextDocument)
+{
+	let pattern = '(script type:(type) @t content:(content [(script_line) (script_statements)] @c))';
+	let query = lang.query(pattern);
+	let matches = query.matches(tree.rootNode);
+
+	let documentText = document.getText();
+	let content = documentText.split('\n').map(line => { return ' '.repeat(line.length); }).join('\n');
+
+	matches.forEach(m => {
+		if (m.captures[0].node.text === scriptType)
+		{
+			let startIndex = m.captures[1].node.startIndex;
+			let endIndex = m.captures[1].node.endIndex;
+			content = content.slice(0, startIndex) + documentText.slice(startIndex, endIndex) + content.slice(endIndex);
+		}
+	});
+
+	content = content.replace(/##@/g, "org");
+	content = content.replace(/##/g, "__");
+
+	return content;
 }
 
 async function getDefinitions(definitionQuery: Parser.Query, includeQuery: Parser.Query, documentUri: vscode.Uri, tree: Parser.Tree, word: string, position?: vscode.Position): Promise<any[]>
@@ -466,6 +615,43 @@ async function getIncludePaths(document: vscode.TextDocument): Promise<vscode.Ur
 	return result;
 }
 
+function getScriptFileExt(type: string)
+{
+	if (type === 'lua')
+		return 'lua';
+	else if (type === 'sq')
+		return 'nut'
+	else
+		return 'unknown'
+}
+
+function getScriptType(node: Parser.SyntaxNode): string
+{
+	for (let i=0 ; i<node.childCount ; i++) {
+		if (node.children[i].type === 'type')
+			return node.children[i].text;
+	}
+	return '';
+}
+
+function insideScript(tree: Parser.Tree, position: vscode.Position): Parser.SyntaxNode | null
+{
+	let node = tree.rootNode.descendantForPosition({ row: position.line, column: position.character });
+
+	if (!node) {
+		return null;
+	}
+
+	while (node.parent)
+	{
+		node = node.parent;
+		if (node.type == 'script')
+			return node;
+	}
+
+	return null;
+}
+
 function insideMacro(node: Parser.SyntaxNode): Parser.SyntaxNode | null
 {
 	while (node.parent)
@@ -551,4 +737,9 @@ function getScopeRange(labelNode: Parser.SyntaxNode, rootNode: Parser.SyntaxNode
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export async function deactivate(): Promise<void> {
+	if (client) {
+		await client.stop();
+		client = undefined;
+	}
+}

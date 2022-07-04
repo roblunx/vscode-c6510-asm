@@ -1,0 +1,15 @@
+{
+	"name": "c6510-asm-lsp-server",
+	"description": "Language server for c6510 assembler (C64)",
+	"version": "0.0.1",
+	"author": {
+		"name": "Robert Lundquist (Krikkit)"
+	},
+	"engines": {
+		"node": "*"
+	},
+	"dependencies": {
+		"vscode-languageserver": "^8.0.1",
+		"vscode-languageserver-textdocument": "^1.0.5"
+	}
+}
