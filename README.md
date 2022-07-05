@@ -29,6 +29,7 @@ A Visual Studio Code extension that provides language support for C64 developmen
  * Commands for
    * Build current file
    * Build and Run current file
+ * Completion and hover support for embedded Lua and Squirrel scripts.
 
 ## Requirements
 
@@ -53,7 +54,18 @@ The following settings are available for the extension. They are organized under
    to be processed before the current source file is processed.
  * **Assembler >> Option >> Preset Defines**: Array of strings of additional implicit constant definitions before
    the source files are processed.
- * **Emulator >> Command Line**: Command line used to invoke emulator. Placeholder variables may be used.
+ * **Assembler >> Option >> Command Line**: Command line used to invoke assembler. The following placeholder
+   variables may be used.
+   * `${executablePath}` - path to the c6510 executable.
+   * `${includes}` - list of all specified include paths, each prepended with proper command line option.
+   * `${presets}` - list of all specified preset definitions, each prepended with proper command line option.
+   * `${additionals}` - list of all specified additional source files, to process before the current text document,
+     each prepended with proper command line option.
+   * `${symbolPath}` - path to the symbol file.
+   * `${outputPath}` - path to the target output PRG file.
+   * `${sourceFile}` - file name of the current text document.
+ * **Emulator >> Command Line**: Command line used to invoke emulator. The following placeholder variables may be used:
+   * `${outputPath}` - path to the target output PRG file.
 
 ## Build file
 
