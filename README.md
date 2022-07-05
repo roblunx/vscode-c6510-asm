@@ -98,6 +98,10 @@ alone on an empty line.
 
 ## Release Notes
 
+### 1.0.0
+
+ - First public release.
+
 ### 0.0.11
 
  - Added completion and hover support for Lua and Squirrel scripts.

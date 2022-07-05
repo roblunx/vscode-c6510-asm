@@ -5,8 +5,13 @@
 	"author": {
 		"name": "Robert Lundquist (Krikkit)"
 	},
+	"license": "MIT",
 	"engines": {
 		"node": "*"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/roblunx/vscode-c6510-asm"
 	},
 	"dependencies": {
 		"vscode-languageserver": "^8.0.1",

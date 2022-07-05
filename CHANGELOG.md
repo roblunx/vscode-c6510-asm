@@ -4,6 +4,10 @@ All notable changes to the "c6510-asm" extension will be documented in this file
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.0.0] - 2022-07-05
+### Fixed
+- Bumping version for first public release.
+
 ## [0.0.11] - 2022-07-05
 ### Added
 - Completion and hover support for Lua and Squirrel scripts.

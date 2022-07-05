@@ -2,14 +2,19 @@
 	"name": "c6510-asm",
 	"displayName": "c6510 Assembler",
 	"description": "Language support for c6510 assembler (C64)",
-	"version": "0.0.11",
+	"version": "1.0.0",
 	"publisher": "roblunx",
 	"author": {
 		"name": "Robert Lundquist (Krikkit)"
 	},
+	"license": "MIT",
 	"icon": "images/c6510-128x128.png",
 	"engines": {
 		"vscode": "^1.58.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/roblunx/vscode-c6510-asm"
 	},
 	"categories": [
 		"Programming Languages"
