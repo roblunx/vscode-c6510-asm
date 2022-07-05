@@ -211,21 +211,30 @@ export async function activate(context: vscode.ExtensionContext) {
 		if (!executablePath)
 			executablePath = 'c6510'
 
-		let cmd = executablePath;
-
+		let includes = '';
 		let includePaths = asm.get<string[]>('includePaths');
 		if (includePaths)
 		{
 			includePaths.forEach(path => {
-				cmd += " -p " + path;
+				includes += " -p " + path;
 			});
 		}
 
+		let presets = '';
 		let presetDefs = option.get<string[]>('presetDefines');
 		if (presetDefs)
 		{
 			presetDefs.forEach(pdef => {
-				cmd += " -d " + pdef;
+				presets += " -d " + pdef;
+			});
+		}
+
+		let additionals = '';
+		let additionalSources = option.get<string[]>('additionalSources');
+		if (additionalSources)
+		{
+			additionalSources.forEach(src => {
+				additionals += " -i " + src;
 			});
 		}
 
@@ -236,19 +245,31 @@ export async function activate(context: vscode.ExtensionContext) {
 		let docDir = path.dirname(docPath);
 		let outputPath = getOutputPath(docDir);
 
-		cmd += " -s " + outputPath + " - +";
-
+		let symbolPath = '';
 		let symbolFile = option.get<string>('symbolFile');
 		if (symbolFile)
 		{
-			let symbolPath = symbolFile;
+			symbolPath = symbolFile;
 			if (!path.isAbsolute(symbolFile))
 				symbolPath = path.join(docDir, symbolFile);
-
-			cmd += " -y " + symbolPath;
 		}
 
-		cmd += " " + path.basename(docPath);
+		let sourceFile = path.basename(docPath);
+
+		let cmd = asm.get<string>('commandLine');
+		if (!cmd) {
+			outputChannel.append("[Error] no command line format configured");
+			return;
+		}
+
+		// Replace placeholder variables.
+		cmd = cmd.replace(/\${executablePath}/g, executablePath);
+		cmd = cmd.replace(/\${includes}/g, includes);
+		cmd = cmd.replace(/\${presets}/g, presets);
+		cmd = cmd.replace(/\${additionals}/g, additionals);
+		cmd = cmd.replace(/\${symbolPath}/g, symbolPath);
+		cmd = cmd.replace(/\${outputPath}/g, outputPath);
+		cmd = cmd.replace(/\${sourceFile}/g, sourceFile);
 
 		outputChannel.appendLine("[Running] " + cmd);
 

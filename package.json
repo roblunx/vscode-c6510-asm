@@ -131,6 +131,12 @@
 					},
 					"description": "Array of strings of additional implicit constant definitions before the source files are processed."
 				},
+				"c6510-asm.assembler.commandLine": {
+					"type": "string",
+					"default": "${executablePath} ${includes} ${presets} ${additionals} -y ${symbolPath} -s ${outputPath} - + ${sourceFile}",
+					"description": "Command line used to invoke assembler. Placeholder variables may be used."
+
+				},
 				"c6510-asm.emulator.commandLine": {
 					"type": "string",
 					"default": "x64 -model c64c -autostartprgmode 1 ${outputPath}",
