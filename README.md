@@ -98,6 +98,14 @@ alone on an empty line.
 
 ## Release Notes
 
+### 0.0.11
+
+ - Added completion and hover support for Lua and Squirrel scripts.
+ - Fixed build (and run) commands so they now appear in command palette as expected.
+ - Updated parser to support new features (`virtual` and `error`) added to c6510.
+ - Changed the composition of the build command line to now use a configurable string with
+   placeholder variables.
+
 ### 0.0.10
 
  - Updated parser to support new operators added to c6510.

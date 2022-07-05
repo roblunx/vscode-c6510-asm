@@ -4,9 +4,20 @@ All notable changes to the "c6510-asm" extension will be documented in this file
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.11] - 2022-07-05
+### Added
+- Completion and hover support for Lua and Squirrel scripts.
+
+### Fixed
+- Build (and run) commands now appear in command palette as expected.
+- Updated parser to support new features (`virtual` and `error`) added to c6510.
+
+### Changed
+- The composition of the build command line is now a configurable string with placeholder variables.
+
 ## [0.0.10] - 2022-04-16
 ### Fixed
-- Updated parser to support new operators added to c6510.
+- Updated parser to support new operators (`+=`, `*=`, etc) added to c6510.
 
 ## [0.0.9] - 2022-03-26
 ### Added

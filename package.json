@@ -2,10 +2,10 @@
 	"name": "c6510-asm",
 	"displayName": "c6510 Assembler",
 	"description": "Language support for c6510 assembler (C64)",
-	"version": "0.0.10",
+	"version": "0.0.11",
 	"publisher": "krikkit",
 	"author": {
-		"name": "Robert Lundquist"
+		"name": "Robert Lundquist (Krikkit)"
 	},
 	"icon": "images/c6510-128x128.png",
 	"engines": {
