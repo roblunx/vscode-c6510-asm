@@ -3,7 +3,7 @@
 	"displayName": "c6510 Assembler",
 	"description": "Language support for c6510 assembler (C64)",
 	"version": "0.0.11",
-	"publisher": "krikkit",
+	"publisher": "roblunx",
 	"author": {
 		"name": "Robert Lundquist (Krikkit)"
 	},
