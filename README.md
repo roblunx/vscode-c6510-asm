@@ -29,7 +29,7 @@ A Visual Studio Code extension that provides language support for C64 developmen
  * Commands for
    * Build current file
    * Build and Run current file
- * Completion and hover support for embedded Lua and Squirrel scripts.
+ * Completion and hover support for embedded Lua and Squirrel scripts
 
 ## Requirements
 
