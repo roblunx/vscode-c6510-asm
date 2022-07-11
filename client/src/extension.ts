@@ -203,6 +203,20 @@ export async function activate(context: vscode.ExtensionContext) {
 		return outputPath;
 	}
 
+	function getSymbolPath(docDir: string): string {
+		let option = vscode.workspace.getConfiguration('c6510-asm.assembler.option');
+
+		let symbolFile = option.get<string>('symbolFile');
+		if (!symbolFile)
+			symbolFile = "program.sym";
+
+		let symbolPath = symbolFile;
+		if (!path.isAbsolute(symbolFile))
+			symbolPath = path.join(docDir, symbolFile);
+
+		return symbolPath;
+	}
+
 	async function buildCurrent() {
 		let asm = vscode.workspace.getConfiguration('c6510-asm.assembler');
 		let option = vscode.workspace.getConfiguration('c6510-asm.assembler.option');
@@ -244,16 +258,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 		let docDir = path.dirname(docPath);
 		let outputPath = getOutputPath(docDir);
-
-		let symbolPath = '';
-		let symbolFile = option.get<string>('symbolFile');
-		if (symbolFile)
-		{
-			symbolPath = symbolFile;
-			if (!path.isAbsolute(symbolFile))
-				symbolPath = path.join(docDir, symbolFile);
-		}
-
+		let symbolPath = getSymbolPath(docDir);
 		let sourceFile = path.basename(docPath);
 
 		let cmd = asm.get<string>('commandLine');
@@ -317,11 +322,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
 		let docDir = path.dirname(docPath);
 		let outputPath = getOutputPath(docDir);
+		let symbolPath = getSymbolPath(docDir);
 
 		let cmd = emu.get<string>('commandLine');
 		if (!cmd)
 			return;
 
+		cmd = cmd.replace(/\${symbolPath}/g, symbolPath);
 		cmd = cmd.replace(/\${outputPath}/g, outputPath);
 
 		let command;
@@ -408,7 +415,7 @@ export async function activate(context: vscode.ExtensionContext) {
 					return null;
 
 				help = " * Dec: `" + dec + "`  \n" +
-				       " * Hex: `$" + hex + "`  \n" +
+					   " * Hex: `$" + hex + "`  \n" +
 					   " * Bin: `%" + bin + "`  \n";
 			}
 

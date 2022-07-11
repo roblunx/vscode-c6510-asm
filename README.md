@@ -65,6 +65,7 @@ The following settings are available for the extension. They are organized under
    * `${outputPath}` - path to the target output PRG file.
    * `${sourceFile}` - file name of the current text document.
  * **Emulator >> Command Line**: Command line used to invoke emulator. The following placeholder variables may be used:
+   * `${symbolPath}` - path to the symbol file.
    * `${outputPath}` - path to the target output PRG file.
 
 ## Build file
@@ -97,6 +98,10 @@ alone on an empty line.
 - Illegal Opcode reference information originally from [this](http://members.chello.nl/taf.offenga/illopc31.txt) document by Freddy Offenga. The web page is not available anymore but can be found on [Internet Archive / Wayback Machine](https://archive.org/web/).
 
 ## Release Notes
+
+### 1.1.0
+
+ - Added symbol file placeholder variable to Build And Run Current command.
 
 ### 1.0.0
 
