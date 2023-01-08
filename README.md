@@ -41,20 +41,20 @@ require installation of separate extensions for those.
 The following settings are available for the extension. They are organized under the `C6510` header.
  * **Build File**: Name of the file describing how to build the source in the directory of the currently
    open file. This file also specifies paths to search for included files when looking for definitions/references.
- * **Assembler >> Executable Path**: Path to the c6510 binary. Unless specified it is expected to be found in the
+ * **Assembler &raquo; Executable Path**: Path to the c6510 binary. Unless specified it is expected to be found in the
    default search path.
- * **Assembler >> Clear Previous Output**: When enabled this will clear the output from previous run every time.
- * **Assembler >> Include Paths**: An array of strings specifying global include search paths, i.e. directories
+ * **Assembler &raquo; Clear Previous Output**: When enabled this will clear the output from previous run every time.
+ * **Assembler &raquo; Include Paths**: An array of strings specifying global include search paths, i.e. directories
    that are always considered when reading included source files while searching for definitions in
    `Go to definition`. E.g. the directory with the c6510 provided include files.
- * **Assembler >> Option >> Output File**: Specifies the name and optionally path of the resulting output PRG file.
- * **Assembler >> Option >> Symbol file**: Specifies the name and optionally path of a symbol file in VICE format
+ * **Assembler &raquo; Option &raquo; Output File**: Specifies the name and optionally path of the resulting output PRG file.
+ * **Assembler &raquo; Option &raquo; Symbol file**: Specifies the name and optionally path of a symbol file in VICE format
    resulting from building the source files.
- * **Assembler >> Option >> Additional Sources**: Array of strings of paths of additional implicit source files
+ * **Assembler &raquo; Option &raquo; Additional Sources**: Array of strings of paths of additional implicit source files
    to be processed before the current source file is processed.
- * **Assembler >> Option >> Preset Defines**: Array of strings of additional implicit constant definitions before
+ * **Assembler &raquo; Option &raquo; Preset Defines**: Array of strings of additional implicit constant definitions before
    the source files are processed.
- * **Assembler >> Option >> Command Line**: Command line used to invoke assembler. The following placeholder
+ * **Assembler &raquo; Option &raquo; Command Line**: Command line used to invoke assembler. The following placeholder
    variables may be used.
    * `${executablePath}` - path to the c6510 executable.
    * `${includes}` - list of all specified include paths, each prepended with proper command line option.
@@ -64,7 +64,7 @@ The following settings are available for the extension. They are organized under
    * `${symbolPath}` - path to the symbol file.
    * `${outputPath}` - path to the target output PRG file.
    * `${sourceFile}` - file name of the current text document.
- * **Emulator >> Command Line**: Command line used to invoke emulator. The following placeholder variables may be used:
+ * **Emulator &raquo; Command Line**: Command line used to invoke emulator. The following placeholder variables may be used:
    * `${symbolPath}` - path to the symbol file.
    * `${outputPath}` - path to the target output PRG file.
 
