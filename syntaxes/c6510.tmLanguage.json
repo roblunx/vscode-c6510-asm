@@ -113,7 +113,11 @@
 				},
 				{
 					"name": "support.other.macro.memory.c6510",
-					"match": "(?:^|\\s+)(memset|memmove|memcopy|prgfilesize|text|incprgorg)\\b"
+					"match": "(?:^|\\s+)(memset|memmove|memcopy|prgfilesize|text|incprgorg|org|end)\\b"
+				},
+				{
+					"name": "support.other.macro.misc.c6510",
+					"match": "(?:^|\\s+)(break|warphere|print|assert)\\b"
 				}
 			]
 		},
@@ -142,6 +146,10 @@
 				{
 					"name": "keyword.other.macro.c6510",
 					"match": "(?:^|\\s+)macro\\b"
+				},
+				{
+					"name": "keyword.other.error.c6510",
+					"match": "(?:^|\\s+)error\\b"
 				},
 				{
 					"match": "(?:\\b)(vice)(?:[^a-zA-Z0-9:](.*)|$)",
