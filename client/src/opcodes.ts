@@ -254,7 +254,7 @@ export let opcodes:any = {
     "\n" +
     "addressing    assembler    opc  bytes  cycles \n" +
     "--------------------------------------------- \n" +
-    "implied       DEC           CA    1     2 ",
+    "implied       DEX           CA    1     2 ",
 
     "DEY":
     "Decrement Index Y by One \n" +
@@ -264,7 +264,7 @@ export let opcodes:any = {
     "\n" +
     "addressing    assembler    opc  bytes  cycles \n" +
     "--------------------------------------------- \n" +
-    "implied       DEC           88    1     2 ",
+    "implied       DEY           88    1     2 ",
 
     "EOR":
     "Exclusive-OR Memory with Accumulator \n" +
@@ -330,7 +330,7 @@ export let opcodes:any = {
     "JSR":
     "Jump to New Location Saving Return Address \n" +
     "\n" +
-    "push (PC+2),                     N Z C I D V \n" +
+    "push PC+2,                       N Z C I D V \n" +
     "(PC+1) -> PCL                    - - - - - - \n" +
     "(PC+2) -> PCH \n" +
     "\n" +
@@ -387,7 +387,7 @@ export let opcodes:any = {
     "Shift One Bit Right (Memory or Accumulator) \n" +
     "\n" +
     "0 -> [76543210] -> C             N Z C I D V \n" +
-    "                                 - + + - - - \n" +
+    "                                 0 + + - - - \n" +
     "\n" +
     "addressing    assembler    opc  bytes  cycles \n" +
     "--------------------------------------------- \n" +
@@ -462,7 +462,7 @@ export let opcodes:any = {
     "\n" +
     "addressing    assembler    opc  bytes  cycles \n" +
     "--------------------------------------------- \n" +
-    "implied       PHP           28    1     4 ",
+    "implied       PLP           28    1     4 ",
 
     "ROL":
     "Rotate One Bit Left (Memory or Accumulator) \n" +
@@ -515,7 +515,7 @@ export let opcodes:any = {
     "SBC":
     "Subtract Memory from Accumulator with Borrow \n" +
     "\n" +
-    "A - M - C -> A                   N Z C I D V \n" +
+    "A - M - ~C -> A                  N Z C I D V \n" +
     "                                 + + + - - + \n" +
     "\n" +
     "addressing    assembler    opc  bytes  cycles \n" +
@@ -640,7 +640,7 @@ export let opcodes:any = {
     "implied       TXA           8A    1     2 ",
 
     "TXS":
-    "Transfer Index X to Stack Register \n" +
+    "Transfer Index X to Stack Pointer \n" +
     "\n" +
     "X -> SP                          N Z C I D V \n" +
     "                                 + + - - - - \n" +
