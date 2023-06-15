@@ -813,7 +813,7 @@ function getScopeStart(labelNode: Parser.SyntaxNode): Parser.SyntaxNode | null
 	let node = labelNode.previousSibling;
 	while (node)
 	{
-		if (node.type == 'label' && !node.text.startsWith('.'))
+		if (node.type == 'label' && !node.text.startsWith('.') && !node.text.startsWith('!'))
 			return node;
 		node = node.previousSibling;
 	}
@@ -826,7 +826,7 @@ function getScopeEnd(labelNode: Parser.SyntaxNode): Parser.SyntaxNode | null
 	let node = labelNode.nextSibling;
 	while (node)
 	{
-		if (node.type == 'label' && !node.text.startsWith('.'))
+		if (node.type == 'label' && !node.text.startsWith('.') && !node.text.startsWith('!'))
 			return node;
 		node = node.nextSibling;
 	}
