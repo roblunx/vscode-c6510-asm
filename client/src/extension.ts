@@ -37,6 +37,22 @@ let visitedPaths: string[];
 let outputChannel: vscode.OutputChannel;
 //let trees: Map<string, Parser.Tree>;
 let client: LanguageClient | undefined;
+let embeddedLanguagesTriggered: Boolean = false;
+
+async function triggerEmbeddedLanguages(document: vscode.TextDocument)
+{
+	if (!embeddedLanguagesTriggered)
+	{
+		let doc2 = await vscode.languages.setTextDocumentLanguage(document, 'lua');
+		setTimeout(() => {
+			vscode.languages.setTextDocumentLanguage(document, 'sq');
+			setTimeout(() => {
+				vscode.languages.setTextDocumentLanguage(document, 'c6510');
+			}, 1000);
+		}, 1000);
+		embeddedLanguagesTriggered = true;
+	}
+}
 
 function startClient(context: vscode.ExtensionContext) {
 	// The server is implemented in node
@@ -92,7 +108,8 @@ function startClient(context: vscode.ExtensionContext) {
 				const vdocUriString = `c6510-embedded-content://${type}/${encodeURIComponent(originalUri)}.${ext}`;
 				const vdocUri = vscode.Uri.parse(vdocUriString);
 
-				onDidChangeEmitter.fire(vdocUri);
+				//onDidChangeEmitter.fire(vdocUri);
+				await triggerEmbeddedLanguages(document);
 
 				return await vscode.commands.executeCommand<vscode.CompletionList>(
 					'vscode.executeCompletionItemProvider',
@@ -121,7 +138,8 @@ function startClient(context: vscode.ExtensionContext) {
 				const vdocUriString = `c6510-embedded-content://${type}/${encodeURIComponent(originalUri)}.${ext}`;
 				const vdocUri = vscode.Uri.parse(vdocUriString);
 
-				onDidChangeEmitter.fire(vdocUri);
+				//onDidChangeEmitter.fire(vdocUri);
+				await triggerEmbeddedLanguages(document);
 
 				//
 				// This will return an array of Hover instances, according to the documentation. The
