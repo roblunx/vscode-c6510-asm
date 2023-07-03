@@ -473,6 +473,8 @@ export async function activate(context: vscode.ExtensionContext) {
 						return [location];
 					}
 				}
+				if (word.startsWith('.'))
+					return getDefinitionsInTree(definitionQuery, document.uri, macroNode, word, position);
 			}
 
 			let includePattern = '(include_source path:[(identifier) (string)] @id1)';
