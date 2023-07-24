@@ -500,7 +500,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			// If it's in the parameters list or if it's a local identifier limit the search to the macro body.
 			if (macroResult.length > 0 || word.startsWith('.'))
 			{
-				let result = getDefinitionsInTree(definitionQuery, document.uri, macroNode, word, position);
+				let result = getQueryMatchesInTree(definitionQuery, document.uri, macroNode, word, position);
 				return macroResult.concat(result);
 			}
 		}
@@ -511,7 +511,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		includeSearchPaths = await getIncludePaths(document);
 		visitedPaths = [];
 
-		return await getDefinitions(definitionQuery, includeQuery, document.uri, tree.rootNode, word, position);
+		return await getQueryMatches(definitionQuery, includeQuery, document.uri, tree.rootNode, word, position);
 	}
 
 	context.subscriptions.push(hoverProvider);
@@ -612,7 +612,7 @@ function getScriptVirtualContent(scriptType: string, tree: Parser.Tree, document
 	return content;
 }
 
-function getDefinitionsInTree(query: Parser.Query, documentUri: vscode.Uri, rootNode: Parser.SyntaxNode, word: string, position?: vscode.Position): any[]
+function getQueryMatchesInTree(query: Parser.Query, documentUri: vscode.Uri, rootNode: Parser.SyntaxNode, word: string, position?: vscode.Position): any[]
 {
 	let matches = query.matches(rootNode);
 	let result:any[] = [];
@@ -662,11 +662,11 @@ function getDefinitionsInTree(query: Parser.Query, documentUri: vscode.Uri, root
 	return result;
 }
 
-async function getDefinitions(definitionQuery: Parser.Query, includeQuery: Parser.Query, documentUri: vscode.Uri, rootNode: Parser.SyntaxNode, word: string, position?: vscode.Position): Promise<any[]>
+async function getQueryMatches(definitionQuery: Parser.Query, includeQuery: Parser.Query, documentUri: vscode.Uri, rootNode: Parser.SyntaxNode, word: string, position?: vscode.Position): Promise<any[]>
 {
 	visitedPaths.push(documentUri.toString(true));
 
-	let result = getDefinitionsInTree(definitionQuery, documentUri, rootNode, word, position);
+	let result = getQueryMatchesInTree(definitionQuery, documentUri, rootNode, word, position);
 
 	//
 	// Start with directory of current document before any other specified directory in include search path.
@@ -692,7 +692,7 @@ async function getDefinitions(definitionQuery: Parser.Query, includeQuery: Parse
 					let fileContent = (await vscode.workspace.fs.readFile(fileUri)).toString();	// throws exception if file cannot be read
 					let fileTree = parser.parse(fileContent);
 
-					let fileResult = await getDefinitions(definitionQuery, includeQuery, fileUri, fileTree.rootNode, word);
+					let fileResult = await getQueryMatches(definitionQuery, includeQuery, fileUri, fileTree.rootNode, word);
 
 					result = result.concat(fileResult);
 				}
