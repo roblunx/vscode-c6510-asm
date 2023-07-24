@@ -446,49 +446,77 @@ export async function activate(context: vscode.ExtensionContext) {
 	let definitionProvider = vscode.languages.registerDefinitionProvider('c6510', {
 		async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Promise<vscode.Definition|vscode.DefinitionLink[]>
 		{
-			let word = document.getText(document.getWordRangeAtPosition(position, /[a-zA-Z_\.@]([a-zA-Z_\.@0-9:]*[a-zA-Z_\.@0-9])*/));
-			let tree = parser.parse(document.getText());
-
-			let pattern1 = '(variable_definition name:(identifier) @id0)';
-			let pattern2 = '(assignment_expression name:(identifier) @id1)';
-			let pattern3 = '(label) @id2';
-			let pattern4 = '(macro_definition name:(identifier) @id3)'
-			let patterns = pattern1 + pattern2 + pattern3 + pattern4;
-			let definitionQuery = lang.query(patterns);
-
-			// Check if this word is inside a macro definition and if so if it is one of the parameters or if it is local.
-			let pointNode = tree.rootNode.descendantForPosition({ row: position.line, column: position.character });
-			let macroNode = insideMacro(pointNode);
-			if (macroNode)
-			{
-				let macroPattern = '(identifier_bitwidth (identifier) @id)';
-				let macroQuery = lang.query(macroPattern);
-				let macroMatches = macroQuery.matches(macroNode);
-				for (let i=0 ; i<macroMatches.length ; i++)
-				{
-					let node = macroMatches[i].captures[0].node;
-					if (node.text == word)
-					{
-						let location = new vscode.Location(document.uri, new vscode.Position(node.startPosition.row, node.startPosition.column));
-						return [location];
-					}
-				}
-				if (word.startsWith('.'))
-					return getDefinitionsInTree(definitionQuery, document.uri, macroNode, word, position);
-			}
-
-			let includePattern = '(include_source path:[(identifier) (string)] @id1)';
-			let includeQuery = lang.query(includePattern);
-
-			includeSearchPaths = await getIncludePaths(document);
-			visitedPaths = [];
-
-			return await getDefinitions(definitionQuery, includeQuery, document.uri, tree.rootNode, word, position);
+			return await getRefDefs(document, position, false);
 		}
 	});
 
+	let referenceProvider = vscode.languages.registerReferenceProvider('c6510', {
+		async provideReferences(document: vscode.TextDocument, position: vscode.Position, context: vscode.ReferenceContext, token: vscode.CancellationToken): Promise<vscode.Location[]>
+		{
+			return await getRefDefs(document, position, true);
+		}
+	});
+
+	async function getRefDefs(document: vscode.TextDocument, position: vscode.Position, includeRefs: boolean): Promise<any[]>
+	{
+		let word = document.getText(document.getWordRangeAtPosition(position, /[a-zA-Z_\.@]([a-zA-Z_\.@0-9:]*[a-zA-Z_\.@0-9])*/));
+		let tree = parser.parse(document.getText());
+
+		let patterns = '(variable_definition name:(identifier) @id0)';
+		patterns += '(assignment_expression name:(identifier) @id1)';
+		patterns += '(label) @id2';
+		patterns += '(macro_definition name:(identifier) @id3)'
+		if (includeRefs)
+		{
+			patterns += '(primary_expression (identifier) @id4)';
+			patterns += '(macro_invocation name:(identifier) @id5)';
+			patterns += '((instruction_mnemonic) @id6)';
+			patterns += '((illegal_instruction_mnemonic) @id7)';
+		}
+		let definitionQuery = lang.query(patterns);
+
+		// Check if this word is inside a macro definition and if so if it is one of the parameters or if it is local.
+		let pointNode = tree.rootNode.descendantForPosition({ row: position.line, column: position.character });
+		let macroNode = insideMacro(pointNode);
+		if (macroNode)
+		{
+			let macroPattern = '(identifier_bitwidth (identifier) @id)';
+			let macroQuery = lang.query(macroPattern);
+			let macroMatches = macroQuery.matches(macroNode);
+			let macroResult:any[] = [];
+			for (let i=0 ; i<macroMatches.length ; i++)
+			{
+				let node = macroMatches[i].captures[0].node;
+				if (node.text == word)
+				{
+					let location = new vscode.Location(document.uri, new vscode.Position(node.startPosition.row, node.startPosition.column));
+					macroResult.push(location);
+				}
+			}
+
+			if (macroResult.length > 0 && !includeRefs)
+				return macroResult;
+
+			// If it's in the parameters list or if it's a local identifier limit the search to the macro body.
+			if (macroResult.length > 0 || word.startsWith('.'))
+			{
+				let result = getDefinitionsInTree(definitionQuery, document.uri, macroNode, word, position);
+				return macroResult.concat(result);
+			}
+		}
+
+		let includePattern = '(include_source path:[(identifier) (string)] @id1)';
+		let includeQuery = lang.query(includePattern);
+
+		includeSearchPaths = await getIncludePaths(document);
+		visitedPaths = [];
+
+		return await getDefinitions(definitionQuery, includeQuery, document.uri, tree.rootNode, word, position);
+	}
+
 	context.subscriptions.push(hoverProvider);
 	context.subscriptions.push(definitionProvider);
+	context.subscriptions.push(referenceProvider);
 
 	// trees = new Map<string, Parser.Tree>();
 
