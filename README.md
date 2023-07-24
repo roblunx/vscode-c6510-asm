@@ -26,6 +26,13 @@ A Visual Studio Code extension that provides language support for C64 developmen
    * label
    * macro
    * macro parameter
+ * Go to references of
+   * variable
+   * constant
+   * label
+   * macro
+   * macro parameter
+   * instructions
  * Commands for
    * Build current file
    * Build and Run current file
@@ -98,6 +105,14 @@ alone on an empty line.
 - Illegal Opcode reference information originally from [this](http://members.chello.nl/taf.offenga/illopc31.txt) document by Freddy Offenga. The web page is not available anymore but can be found on [Internet Archive / Wayback Machine](https://archive.org/web/).
 
 ## Release Notes
+
+### 1.2.0
+
+ - Added `Go to references` support.
+ - Corrected opcode hover info.
+ - Fixed loading of embedded script language extensions (in a hacky way).
+ - Fixed incorrect scope limits where auto-named labels where treated as global when they should be ignored.
+ - Limit search for local names inside macro to macro body.
 
 ### 1.1.0
 

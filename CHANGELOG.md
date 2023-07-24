@@ -4,6 +4,16 @@ All notable changes to the "c6510-asm" extension will be documented in this file
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.0] - 2023-07-25
+### Added
+- `Go to references` support.
+
+### Fixed
+- Corrected opcode hover info.
+- Loading of embedded script language extensions (in a hacky way).
+- Incorrect scope limits where auto-named labels where treated as global when they should be ignored.
+- Limit search for local names inside macro to macro body.
+
 ## [1.1.0] - 2022-07-12
 ### Added
 - Symbol file placeholder variable to Build And Run Current command.
