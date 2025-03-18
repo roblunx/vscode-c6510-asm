@@ -106,6 +106,13 @@ alone on an empty line.
 
 ## Release Notes
 
+### 1.2.1
+ - Issue with `web-tree-sitter` manifested during debugging of extension causing the activation of the
+   extension to fail. Updated `web-tree-sitter` node module to a slightly newer version which contains a fix.
+ - Command line wrapping approach on macOS using `script` fails on newer OS versions and has now been
+   replaced with another using `expect` instead. The wrapping makes the emulator run in a pty in order
+   to get unbuffered output.
+
 ### 1.2.0
 
  - Added `Go to references` support.

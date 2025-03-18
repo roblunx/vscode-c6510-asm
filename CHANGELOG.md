@@ -4,6 +4,14 @@ All notable changes to the "c6510-asm" extension will be documented in this file
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.1] - 2025-03-18
+### Fixed
+- Issue with `web-tree-sitter` manifested during debugging of extension causing the activation of the
+  extension to fail. Updated `web-tree-sitter` node module to a slightly newer version which contains a fix.
+- Command line wrapping approach on macOS using `script` fails on newer OS versions and has now been
+  replaced with another using `expect` instead. The wrapping makes the emulator run in a pty in order
+  to get unbuffered output.
+
 ## [1.2.0] - 2023-07-25
 ### Added
 - `Go to references` support.
