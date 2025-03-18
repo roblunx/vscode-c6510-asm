@@ -356,7 +356,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		if (platform == 'linux')
 			command = 'script -q -c "' + cmd + '" /dev/null';
 		else if (platform == 'darwin')
-			command = 'script -q /dev/null ' + cmd;
+			command = 'expect -c "spawn -noecho ' + cmd + '" -c "set timeout -1" -c "expect timeout"';
 		else
 			command = cmd;
 
